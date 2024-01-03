@@ -1,0 +1,33 @@
+{ 
+    "comment": "PROFANITY IS A LIST OF WORDS YOU DO NOT WANT IN YOUR GAME. SAFEWORDS IS A LIST OF WORDS THAT THE TEXT PARSER WILL USE TO REPLACE ANY OF THE WORDS IN THE PROFANITY LIST.",
+    "profanity": [
+        "ASS",
+        "ASSES",
+        "ASSHOLE",
+        "ASSHOLES",
+        "BITCH",
+        "BITCHES",
+        "BULLSHIT",
+        "FUCK",
+        "FUCKS",
+        "MOTHERFUCKER",
+        "MOTHERFUCKERS",
+        "SHIT",
+        "SHITS"
+    ],
+    "safewords": [
+        "BROWNIE",
+        "COOKIE",
+        "CUPCAKE",
+        "GLITTER",
+        "JUICE",
+        "KITTY",
+        "LOLLIPOP",
+        "MILK",
+        "PUPPY",
+        "RAINBOW",
+        "SPRINKLES",
+        "SUNSHINE",
+        "UNICORN"
+    ]
+}

@@ -1,0 +1,55 @@
+{
+    "doors": [
+        {
+            "name": "BHFD",
+            "scene": "BHFP",
+            "title": "FRONT DOOR",
+            "image": "🚪",
+            "description": "A BIG RED DOOR WITH A GOLDEN KNOCKER AND 3 CURVED WINDOWS AT THE TOP.",
+            "knock": "YOU HERE A MUFFLED VOICE FROM THE OTHERSIDE \"ONE MINUTE!\"",
+            "paths": [
+                {
+                    "scene": "BHLR",
+                    "description": "A BIG RED DOOR THAT LEADS BACK OUT TO THE PORCH.",
+                    "lock_without_key": 1
+                }
+            ],
+            "open": 1,
+            "locked": 1
+        },
+        {
+            "name": "CSTANDD",
+            "title": "CONCESSION STAND DOOR",
+            "description": "A DOOR",
+            "scene": "CSTAND",
+            "no_lock": 1,
+            "paths": [
+                {
+                    "scene": "DITL",
+                    "no_lock": 1
+                }
+            ]
+        },
+        {
+            "name": "PROJECTION BOOTH DOOR",
+            "scene": "PB",
+            "description": "A GRAY METAL DOOR WITH SOME NAUGHTY PIN-UPS TAPED TO IT.",
+            "lock_without_key": 1,
+            "paths": [
+                {
+                    "scene": "CSTAND",
+                    "description": "A GRAY METAL DOOR WITH A SIGN THAT SAYS \"STAFF ONLY\" TAPED TO IT.",
+                    "locked_message": "THERE'S A SIGN THAT SAYS \"STAFF ONLY\". YOU'RE DEFINITELY NOT STAFF SO YOU DECIDE IT'S BEST TO NOT GO THAT WAY."
+                },
+                {
+                    "scene": "DITL",
+                    "description": "A GRAY METAL DOOR WITH A SIGN THAT SAYS \"STAFF ONLY\" TAPED TO IT.",
+                    "locked_message": "THERE'S A SIGN THAT SAYS \"STAFF ONLY\". YOU'RE DEFINITELY NOT STAFF SO YOU DECIDE IT'S BEST TO NOT GO THAT WAY."
+                }
+            ],
+            "locked": 1,
+            "keys": ["KEY"],
+            "open": 0
+        }
+    ]
+}

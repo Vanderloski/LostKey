@@ -1,0 +1,180 @@
+{
+    "comment": "NAME OF EACH SCENE IS REQUIRED AND HAS TO BE UNIQUE. IF YOU ADD A TITLE TO A SCENE THIS WILL BE DISPLAYED INSTEAD OF THE NAME.",
+    "comment2": "EXITS LISTS ALL AVAILABLE EXITS IN A GIVEN SCENE AND THEN THE NAME OF THE SCENE THAT EXIT GOES TO.",
+    "scenes": [
+        {
+            "name": "INTRODUCTION",
+            "description": "~~~INVASION_OF_THE_OUTERSPACEMEN ~~~A_PARTICIPATIVE_NARRATIVE_BY_JOSEPH_VANDERLOSKI ~~~©MMXXIII_JOSEPH_VANDERLOSKI,_ALL_RIGHTS_RESERVED ~~~LOSTKEY_TEXT_PARSER_VERSION_1.0_IS_LICENSED_UNDER_CC_BY-NC-SA_4.0._TO_VIEW_A_COPY_OF_THIS_LICENSE,_VISIT_HTTP://CREATIVECOMMONS.ORG/LICENSES/BY-NC-SA/4.0 ~~~INVASION_OF_THE_OUTER_SPACEMEN_AND_LOSTKEY_PARSER_ARE_TRADEMARKS_OF_JOSEPH_VANDERLOSKI C64 >>> >>> >>> A BRIGHT GREEN LIGHT BURSTS OUT FROM THE SKY BATTLING FOR DOMINANCE OVER THE SETTING SUN. IT QUICKLY ARCS OVER THE SLEEPY LITTLE TOWN OF GRUEVILLE BATHING THE STREETS AND BUILDINGS IN IT'S EERIE ESSENCE AND ANY WHO ARE CAUGHT IN THE LIGHT BEGIN TO FEEL UNEASY. STRANGE LIGHTS IN THE SKY IS NOTHING NEW IN THIS DAY AND AGE OF ATOMIC INVENTION AND YET THE LIGHT BRINGS BACK MEMORIES OF A RECENT SECOND GLOBAL WAR THAT ARE BEST LEFT FORGOTTEN. THE LIGHT DISAPPEARS AS QUICK AS IT CAME LEAVING ONLY THE EVER PRESENT SUN LEFT IN THE SKY AND MAKING THOSE WHO SAW IT QUESTION WHETHER IT HAD REALLY BEEN THERE AS THEY CONTINUE ON IN THEIR DAILY RITUALS. >>> >>> >>> AS YOU EXIT YOUR CAR, YOU WATCH THE GREEN LIGHT DISAPPEAR BEHIND THE HORIZON AND WONDER WHAT THAT WAS. YOU WALK UP TO THE FRONT OF THE HOUSE OF YOUR GIRLFRIEND, ###BETTY. YOU TWO HAD PLANNED ON WATCHING A MOVIE AT THE DRIVE IN THIS QUIET SPRING EVENING, BUT YOU BEGIN TO GET A STRANGE FEELING THAT TONIGHT IS GOING TO BE A VERY EXCITING NIGHT. YOU'VE ARRIVED ON THE FRONT PORCH OF BETTY'S HOUSE, THE FRONT DOOR IS STRAIGHT AHEAD. YOU SHOULD PROBABLY ANNOUNCE YOURSELF."
+        },
+        {
+            "name": "BHFP",
+            "title": "BETTY'S HOUSE - FRONT PORCH",
+            "alias": ["PORCH", "FRONT PORCH"],
+            "description": "YOU'RE STANDING OUTSIDE BETTY'S HOUSE ON HER FRONT PORCH FRAMED WITH LARGE |||ROSE_BUSHES ON BOTH SIDES. THE ^^^STREET WHERE YOUR CAR IS PARKED IS BEHIND YOU TO THE ^^^SOUTH. YOU'RE FACING BETTY'S HOUSE WITH A RED PAINTED DOOR DIRECTLY IN FRONT OF YOU. TO THE RIGHT OF THE DOOR IS THE |||DOORBELL.",
+            "exits": [
+                {
+                    "direction": "S",
+                    "scene": "BHST",
+                    "impassable": 1,
+                    "impassable_message": "YOU SHOULDN'T LEAVE WITHOUT BETTY, SHE'D BE UPSET WITH YOU."
+                }
+            ]
+        },
+        {
+            "name": "BHLR",
+            "description": "A SMALL LIVING ROOM.",
+            "exits": [
+                {
+                    "direction": "S",
+                    "scene": "BHFP"
+                }
+            ]
+        },
+        {
+            "name": "BHST",
+            "title": "BETTY'S HOUSE - STREET",
+            "alias": ["STREET", "BETTY'S HOUSE", "BETTY'S"],
+            "introduction": "YOU MAKE YOUR WAY BACK TO THE STREET WHERE YOUR CAR IS PARKED WITH BETTY IN TOW. \"OH WHAT A NICE CAR.\" BETTY EXCLAIMS. YOUR NEW |||THUNDERBIRD SITS NEXT TO THE CURB IN THE STREET. IT'S RED PAINT GLISTENING IN THE REMAINING LIGHT OF THE SETTING SUN. THE ^^^DRIVE_IN_THEATER IS A SHORT DRIVE TO THE ^^^NORTHWEST.",
+            "description": "THE STREET OUTSIDE BETTY'S HOUSE. THE ^^^DRIVE_IN_THEATER IS A SHORT DRIVE TO THE ^^^NORTHWEST.",
+            "exits": [
+                {
+                    "direction": "N",
+                    "scene": "BHFP"
+                },
+                {
+                    "direction": "NW",
+                    "scene": "DITL",
+                    "vehicle_required": 1,
+                    "vehicle_message": "IT'S A LONG WAY TO THE DRIVE-IN, IT WOULD BE BEST TO DRIVE THERE. BESIDES, YOU JUST BOUGHT THE T-BIRD, MIGHT AS WELL DRIVE IT."
+                }
+            ]
+        },
+        {
+            "name": "DITL",
+            "title": "DRIVE-IN THEATER - LOT",
+            "alias": ["LOT", "DRIVE-IN", "THEATER", "DRIVE-IN THEATER", "THEATRE", "DRIVE-IN THEATRE", "DRIVE IN", "DRIVE IN THEATER", "DRIVE IN THEATRE"],
+            "introduction": "YOU PULL UP TO A LARGE GRAVEL LOT. A BIG WHITE PAINTED WOODEN SCREEN SITS ON THE SOUTH OF THE LOT AND A SMALL BUILDING FOR THE CONCESSIONS AND PROJECTION BOOTH SITS ON THE OPPOSITE END. AT THE ENTRANCE YOU GIVE THE OWNER, JIM, MONEY FOR TICKETS AND PARK INTO A SPOT RIGHT IN THE MIDDLE. THERE IS CURRENTLY AN ADVERTISEMENT PLAYING ON THE SCREEN AS THE LIGHT ENTERS THE FRONT OF THE CAR AND SLIGHTLY ILLUMINATES THE SCENE AROUND YOU.",
+            "description": "A LARGE DIRT LOT WITH MULTIPLE PARKING SPOTS SOME OCCUPIED WITH CARS OF OTHER PATRONS. A LARGE WOODEN SCREEN WITH A WHITE FACE SITS AT THE FRONT OF THE LOT. THEY ARE CURRENTLY PLAYING ADS ON THE SCREEN.",
+            "exits": [
+                {
+                    "direction": "SE",
+                    "scene": "BHST",
+                    "vehicle_required": 1,
+                    "vehicle_message": "IT'S A LONG WAY BACK TO BETTY'S, IT WOULD BE BEST TO DRIVE THERE. BESIDES, YOU JUST BOUGHT THE T-BIRD, MIGHT AS WELL DRIVE IT.",
+                    "impassable": 1,
+                    "impassable_message": "YOU CAN'T LEAVE NOW, THE MOVIE IS ABOUT TO START."
+                },
+                {
+                    "direction": "N",
+                    "scene": "CSTAND"
+                },
+                {
+                    "direction": "NE",
+                    "scene": "PB"
+                }
+            ]
+        },
+        {
+            "name": "CSTAND",
+            "title": "DRIVE-IN THEATER - CONCESSION STAND",
+            "alias": ["CONCESSIONS", "CONCESSION", "CONCESSION STAND", "STAND"],
+            "introduction": "IT SEEMS THE OWNER JIM HAS MOVED OVER TO THE CONCESSION STAND, HE'S QUICK, AND IS READY TO SERVE WHATEVER DINING NEEDS YOU MIGHT NEED. JIM GESTURES TO SOME BAGS OF POPCORN, \"I'VE GOT FRESH POPCORN HERE, IF YOU'D LIVE A BAG THAT'LL BE TEN CENTS.\"",
+            "description": "A CONCESSION STAND WHERE YOU CAN BUY ALL SORTS OF GOODIES. THE ^^^PB IS TO THE ^^^EAST.",
+            "exits": [
+                {
+                    "direction": "S",
+                    "scene": "DITL"
+                },
+                {
+                    "direction": "E",
+                    "scene": "PB"
+                }
+            ]
+        },
+        {
+            "name": "PB",
+            "title": "DRIVE-IN THEATER - PROJECTION BOOTH",
+            "alias": ["PROJECTION BOOTH", "BOOTH", "PROJECTION"],
+            "introduction": "WHEN YOU ARRIVE THE SCENE IS THAT OF CHAOS. BOXES OF OLD FILM REELS ARE TOPPLED AND SCATTERED ACROSS THE FLOOR. A CHAIR HAS BEEN TOPPLED OVER, AND THE FILM HAS FALLEN OUT OF THE PROJECTOR AND TICKS AWAY AT NOTHING. A |||FLASHLIGHT SITS ON THE TABLE NEXT TO THE PROJECTOR. JIM IS NO WHERE TO BE SEEN, WHICH IS VERY UNLIKE HIM. SOMETHING IS DEFINITELY WRONG HERE. YOU NOTICE THE BACKDOOR OF THE ROOM IS SLIGHTLY OPEN. AS YOU PEER OUT INTO THE DARKNESS YOU NOTICE A LARGE LUMBERING SHADOW THAT SEEMS TO BE CARRYING A HUMAN BODY ACROSS IT'S SHOULDER AS IT DISAPPEARS INTO THE FOREST.",
+            "description": "A PROJECTION BOOTH THAT IS CURRENTLY IN A STATE OF DISARRAY.",
+            "exits": [
+                {
+                    "direction": "W",
+                    "scene": "CSTAND"
+                },
+                {
+                    "direction": "S",
+                    "scene": "DITL"
+                },
+                {
+                    "direction": "N",
+                    "scene": "FMAZES"
+                }
+            ]
+        },
+        {
+            "name": "FMAZES",
+            "title": "FOREST MAZE",
+            "alias": ["FOREST"],
+            "description": "THE SMALL AMOUNT OF LIGHT JUTTING OUT FROM THE PROJECTION BOOTH IS JUST ENOUGH TO SEE. YOU ARE STANDING JUST ON THE OTHERSIDE OF THE TREE LINE ON A SMALL DIRT PATH. THE DIRT PATH SPLITS INTO THREE DIRECTIONS AHEAD OF YOU. ONE TO THE ^^^EAST, ONE TO THE ^^^NORTH AND ONE TO THE ^^^WEST. YOU'RE PRETTY SURE YOU'RE GOING TO NEED SOME ADDITIONAL LIGHT IF YOU WANT TO VENTURE ANY FURTHER. THE ^^^PB LIES BEHIND YOU TO THE ^^^SOUTH.",
+            "exits": [
+                {
+                    "direction": "E",
+                    "scene": "FMAZEE"
+                },
+                {
+                    "direction": "W",
+                    "scene": "FMAZEW"
+                },
+                {
+                    "direction": "N",
+                    "scene": "FSAUCER"
+                },
+                {
+                    "direction": "S",
+                    "scene": "PB"
+                }
+            ]
+        },
+        {
+            "name": "FMAZEE",
+            "title": "FOREST MAZE",
+            "alias": ["TRAIL"],
+            "description": "THE PATH ENDS WHERE A FALLEN TREE HAS BLOCKED ANY HOPE OF CONTINUING ON. YOU CAN HEAD BACK ^^^WEST ON THE TRAIL.",
+            "exits": [
+                {
+                    "direction": "W",
+                    "scene": "FMAZES"
+                }
+            ],
+            "light": "DARK"
+        },
+        {
+            "name": "FMAZEW",
+            "title": "FOREST MAZE",
+            "alias": ["TRAIL"],
+            "description": "THE PATH EVENTUALLY PETERS OUT AND YOU'RE PRETTY SURE CONTINUING IN THIS DIRECTION WOULD GET YOU LOST. YOU CAN HEAD BACK ^^^EAST ON THE TRAIL.",
+            "exits": [
+                {
+                    "direction": "E",
+                    "scene": "FMAZES"
+                }
+            ],
+            "light": "DARK"
+        },
+        {
+            "name": "FSAUCER",
+            "title": "FOREST - SAUCER",
+            "alias": ["TRAIL", "SAUCER", "SPACESHIP", "FLYING SAUCER", "CLEARING", "FOREST CLEARING"],
+            "introduction": "AS YOU CONTINUE NORTH YOU NOTICE A GREEN LIGHT PULSATING IN THE DISTANCE. AS YOU APPROACH YOU SEE A GIANT METALLIC OBJECT SITTING IN THE MIDDLE OF AN OPEN CLEARING IN THE WOODS. IT'S DESIGN IS UNLIKE ANYTHING YOU'VE EVER SEEN BEFORE, AND THE MATERIAL IT'S MADE OUT OF SHINES IN A WAY THAT IS NEW TO YOU. YOU AND BETTY CREEP UP TO THE EDGE OF THE CLEARING BUT TRY TO NOT BE SEEN BY STAYING BEHIND SOME TREES. AS YOU CROUCH DOWN, BETTY LETS OUT A SMALL GASP AND BEFORE YOU CAN ASK HER WHAT'S WRONG YOU SEE THE REASON FOR HER SUPRISE. THREE BIPEDAL CREATURES EMERGE FROM A RAMP AT THE BOTTOM OF THE CRAFT. THEY BEGIN TO CONVERSE WITH EACH OTHER, THEIR SPEECH IS HARSH AND DISPLEASING TO THE EARS. YOU BEGIN TO REALIZE THAT YOU ARE OBSERVING ALIENS FROM ANOTHER PLANET. SUDDENLY, A DOG BEGINS TO BARK FROM THE RIGHT OF THE CLEARING. THE ALIEN CREATURES IMMEDIATELY TURN TO THE DOG AND FIRE SOME KIND OF WEAPON THAT CREATES A RED LINE THAT CATCHES THE DOG BY THE HIND QUARTERS. SCARED AND HURT THE DOG TURNS TAIL AND RUNS AS ITS YIPS DISAPPEAR INTO THE DISTANCE. BETTY GRABS YOUR ARM, \"WE NEED TO GO BACK AND TELL SOMEBODY WHAT'S GOING ON HERE.\"",
+            "description": "A LARGE METALLIC ALIEN SHIP SITS IN A CLEARING AND THREE OF IT'S OCCUPANTS STAND BENEATH IT. YOU'RE NOT SURE, BUT THEY SEEM TO BE ARGUING.",
+            "light": "DARK",
+            "exits": [
+                {
+                    "direction": "S",
+                    "scene": "FMAZES"
+                }
+            ]
+        }
+    ]
+}

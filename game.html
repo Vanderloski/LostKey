@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>👽INVASION OF THE OUTER SPACEMEN👽</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="author" content="Joseph Vanderloski">
+	<meta name="keywords" content="game">
+	<link href="assets/css/game.css" type="text/css" media="all" rel="stylesheet" title="Web">
+	<script src="assets/js/jquery.3.7.0.js" type="text/javascript"></script>
+	<script src="assets/js/global.js" type="text/javascript"></script>
+	<script src="assets/js/fx.js" type="text/javascript"></script>
+	<script src="assets/js/main.js" type="text/javascript"></script>
+</head>
+
+<body>
+	<div id="titleScreen">
+		<div id="titleCenter">
+			<p id="titleTag" class="textStyle"></p>
+			<h2 id="titleHeader" class="textStyle"></h2>
+			<p id="titleAuthor" class="textStyle"></p>
+			<p id="titleStart" class="textStyle">PRESS ANY KEY OR CLICK TO START</p>
+		</div>
+	</div>
+	<div id="loading">
+		<p id="loadingPara" class="textStyle">LOADING</p>
+	</div>
+	<div id="wrapper">
+		<div id="banner">
+			<div id="bannerWidth">
+				<div class="bannerSection textStyle" id="moveCounter">
+					<h4></h4>
+				</div>
+				<div class="bannerSection textStyle" id="currentScene">
+					<h4></h4>
+				</div>
+				<div class="bannerSection textStyle" id="currentScore">
+					<h4></h4>
+				</div>
+			</div>
+		</div> <!-- banner -->
+		<div id="contentWrapper">
+			<div id="storybook">
+			</div> <!-- storybook -->
+			<div id="sidebar">
+				<div id="inventory">
+					<h6 class="textStyle">INVENTORY</h6>
+					<div id="inventoryListDIV">
+						<ul id="inventoryList"></ul>
+					</div>
+				</div> <!-- inventory -->
+			</div> <!-- sidebar -->
+		</div> <!-- contentWrapper -->
+		<div id="cmd">
+			<div id="cmdWidth">
+				<p id="command" class="textStyle">&gt;<span id="commandDisplay"></span><span id="cursor"></span></p>
+				<input id="commandInput" name="commandInput" type="text" />
+			</div>
+		</div> <!-- cmd -->
+	</div> <!-- wrapper -->
+</body>
+
+</html>

@@ -1,0 +1,147 @@
+{
+    "events": [
+        {
+            "name": "PLACE_BETTY_INITIAL",
+            "action": ["KNOCK"],
+            "active": 1,
+            "event_only": 1,
+            "before": 1,
+            "cause": {
+                "object": {
+                    "name": "BHFD"
+                }
+            },
+            "effect": {
+                "response": "A YOUNG WOMAN OPENS THE FRONT DOOR AND STEPS ON THE PORCH TO GREET YOU.",
+                "characters": [
+                    {
+                        "name": "BETTY",
+                        "scene": "BHFP"
+                    }
+                ],
+                "scenes": [
+                    {
+                        "name": "BHFP",
+                        "exits": [
+                            {
+                                "direction": "S",
+                                "scene": "BHST",
+                                "impassable": 0
+                            }
+                        ]
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "PLACE_BETTY",
+                        "active": 1
+                    },
+                    {
+                        "name": "STOP_ROSE",
+                        "active": 1
+                    }
+                ]
+            }
+        },
+        {
+            "name": "PLACE_BETTY",
+            "active": 0,
+            "repeatable": 1,
+            "effect": {
+                "characters": [
+                    {
+                    "name": "BETTY",
+                    "scene": "PLAYER"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "STOP_ROSE",
+            "action": ["GET"],
+            "active": 0,
+            "repeatable": 1,
+            "event_only": 1,
+            "before": 1,
+            "cause": {
+                "object": {
+                    "name": "ROSE",
+                    "encountered": 1
+                },
+                "player": {
+                    "scene": "BHFP"
+                },
+                "characters": [
+                    {
+                        "name": "BETTY",
+                        "scene": "BHFP"
+                    }
+                ]
+            },
+            "effect": {
+                "response": "BETTY STOPS YOU BEFORE YOU CAN REACH THE FLOWER, \"OH, DON'T TOUCH THE ROSE BUSH, MY FATHER WOULD BE VERY UPSET.\""
+            }
+        },
+        {
+            "name": "SCORE_ROSE",
+            "action": ["GIVE"],
+            "active": 1,
+            "cause": {
+                "object": {
+                    "name": "ROSE"
+                },
+                "indirect": {
+                    "name": "BETTY",
+                    "scene": "PLAYER"
+                }
+            },
+            "effect": {
+                "response": "\"OH, SUCH A PRETTY FLOWER, THANK YOU!\", BETTY GIVES YOU A KISS ON THE CHEEK.",
+                "score": 100,
+                "items": [
+                    {
+                        "name": "ROSE",
+                        "owner": ""
+                    }
+                ]
+            }
+        },
+        {
+            "name": "DRIVE_IN_FX",
+            "active": 1,
+            "repeatable": 1,
+            "cause": {
+                "player": {
+                    "scene": "DITL"
+                }
+            },
+            "effect": {
+                "fx": "DRIVEINTHEATER",
+                "characters": [
+                    {
+                        "name": "BETTY",
+                        "help": ["\"WE CAN'T WATCH A MOVIE WITHOUT SOME POPCORN!\""],
+                        "responses": ["\"WE CAN'T WATCH A MOVIE WITHOUT SOME POPCORN!\""]
+                    }
+                ]
+            }
+        },
+        {
+            "name": "STOP_FLASHLIGHT",
+            "active": 1,
+            "repeatable": 1,
+            "action": ["TURN","ACTIVATE"],
+            "before": 1,
+            "event_only": 1,
+            "cause": {
+                "object": {
+                    "name": "FLASHLIGHT",
+                    "scene": "PLAYER"
+                }
+            },
+            "effect": {
+                "response": "YOU'LL NEED TO FIND NEW BATTERIES BEFORE IT WILL WORK."
+            }
+        }
+    ]
+}

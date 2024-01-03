@@ -1,0 +1,266 @@
+{
+    "comment": "LIST OF ALL ACTIONS AVAILABLE IN THE GAME.",
+    "comment2": "ALIAS IS A LIST OF ALL WORDS THAT PERFORM THE SAME ACTION AS AN ACTION WORD I.E. N = NORTH.",
+    "actions": [
+        {
+            "action": "LISTINVENTORY",
+            "class": "ITEM",
+            "type": "LISTINVENTORY",
+            "dev_action": 1,
+            "skip_events": 1
+        },
+        {
+            "action": "SETPLAYER",
+            "class": "MOVEMENT",
+            "type": "SETPLAYER",
+            "dev_action": 1
+        },
+
+        {
+            "action": "CLOSE",
+            "class": "DOOR",
+            "type": "OPENCLOSEDOOR",
+            "alias": ["OPEN", "SHUT"]
+        },
+        {
+            "action": "KNOCK",
+            "class": "DOOR",
+            "type": "DOORKNOCK",
+            "preposition_required": 1,
+            "prepositions_allowed": ["ON"],
+            "alias": ["TAP", "RAP", "BANG"]
+        },
+        {
+            "action": "LOCK",
+            "class": "DOOR",
+            "type": "LOCKDOOR",
+            "alias": ["UNLOCK"]
+        },
+        {
+            "action": "KICK",
+            "class": "DOOR",
+            "fallback": "VIOLENCE ISN'T THE ANSWER HERE.",
+            "alias": ["PUNCH"]
+        },
+        {
+            "action": "I",
+            "class": "SYSTEM",
+            "type": "INVENTORY",
+            "alias": ["INVENTORY", "INV"]
+        },
+        {
+            "action": "CLOSE",
+            "class": "ITEM",
+            "type": "OPENCLOSEITEM",
+            "alias": ["OPEN", "SHUT"]
+        },
+        {
+            "action": "DROP",
+            "class": "ITEM",
+            "type": "DROPITEM",
+            "alias": ["LEAVE"]
+        },
+        {
+            "action": "ENTER",
+            "class": "ITEM",
+            "type": "ENTEREXIT",
+            "alias": ["EXIT", "LEAVE"]
+        },
+        {
+            "action": "GET",
+            "class": "ITEM",
+            "type": "ENTEREXIT",
+            "preposition_required": 1,
+            "prepositions_allowed": ["IN", "OUT"]
+        },
+        {
+            "action": "CLIMB",
+            "class": "ITEM",
+            "type": "ENTEREXIT",
+            "preposition_required": 1,
+            "prepositions_allowed": ["INTO", "OUT", "OUT OF"]
+        },
+        {
+            "action": "GET",
+            "class": "ITEM",
+            "type": "GETITEM",
+            "alias": ["TAKE", "GRAB"]
+        },
+        {
+            "action": "PICK",
+            "class": "ITEM",
+            "type": "GETITEM",
+            "prepositions_allowed": ["UP"]
+        },
+        {
+            "action": "GIVE",
+            "class": "ITEM",
+            "type": "GIVEITEMCHARACTER"
+        },
+        {
+            "action": "PUT",
+            "class": "ITEM",
+            "type": "GIVEITEM",
+            "alias": ["PLACE"],
+            "preposition_required": 1,
+            "prepositions": ["IN", "ON"]
+        },
+        {
+            "action": "TURN",
+            "class": "ITEM",
+            "type": "ACTIVATEITEM",
+            "preposition_required": 1,
+            "prepositions_allowed": ["ON", "OFF"]
+        },
+        {
+            "action": "ACTIVATE",
+            "class": "ITEM",
+            "type": "ACTIVATEITEM",
+            "alias": ["DEACTIVATE"]
+        },
+        {
+            "action": "SWITCH",
+            "class": "ITEM",
+            "type": "ITEMTURN",
+            "preposition_required": 1,
+            "prepositions_allowed": ["ON", "OFF"]
+        },
+        {
+            "action": "N",
+            "class": "MOVEMENT",
+            "type": "MOVEPLAYER",
+            "alias": ["NORTH"]
+        },
+        {
+            "action": "S",
+            "class": "MOVEMENT",
+            "type": "MOVEPLAYER",
+            "alias": ["SOUTH"]
+        },
+        {
+            "action": "E",
+            "class": "MOVEMENT",
+            "type": "MOVEPLAYER",
+            "alias": ["EAST"]
+        },
+        {
+            "action": "W",
+            "class": "MOVEMENT",
+            "type": "MOVEPLAYER",
+            "alias": ["WEST"]
+        },
+        {
+            "action": "NE",
+            "class": "MOVEMENT",
+            "type": "MOVEPLAYER",
+            "alias": ["NORTHEAST"]
+        },
+        {
+            "action": "NW",
+            "class": "MOVEMENT",
+            "type": "MOVEPLAYER",
+            "alias": ["NORTHWEST"]
+        },
+        {
+            "action": "SE",
+            "class": "MOVEMENT",
+            "type": "MOVEPLAYER",
+            "alias": ["SOUTHEAST"]
+        },
+        {
+            "action": "SW",
+            "class": "MOVEMENT",
+            "type": "MOVEPLAYER",
+            "alias": ["SOUTHWEST"]
+        },
+        {
+            "action": "U",
+            "class": "MOVEMENT",
+            "type": "MOVEPLAYER",
+            "alias": ["UP"]
+        },
+        {
+            "action": "D",
+            "class": "MOVEMENT",
+            "type": "MOVEPLAYER",
+            "alias": ["DOWN"]
+        },
+        {
+            "action": "GO",
+            "class": "MOVEMENT",
+            "type": "MOVEPLAYERACTION",
+            "alias": ["WALK", "HEAD", "AMBLE", "MEANDER", "MOVE", "TRAVEL", "NAVIGATE"],
+            "prepositions_allowed": ["TO"]
+        },
+        {
+            "action": "RUN",
+            "class": "MOVEMENT",
+            "type": "MOVEPLAYERACTION",
+            "flavor": "YOU MOVE LIKE THE WIND.",
+            "prepositions_allowed": ["TO"]
+        },
+        {
+            "action": "CONVERSE",
+            "class": "CHARACTER",
+            "type": "CONVERSE",
+            "preposition_required": 1,
+            "prepositions_allowed": ["WITH"]
+        },
+        {
+            "action": "TALK",
+            "class": "CHARACTER",
+            "type": "CONVERSE",
+            "alias": ["SPEAK", "CONVERSE"],
+            "preposition_required": 1,
+            "prepositions_allowed": ["TO", "ABOUT", "WITH"]
+        },
+        {
+            "action": "ASK",
+            "class": "CHARACTER",
+            "type": "CONVERSE",
+            "prepositions_allowed": ["ABOUT"]
+        },
+        {
+            "action": "X",
+            "class": "SYSTEM",
+            "type": "EXAMINE",
+            "alias": ["EXAMINE", "VIEW", "SEARCH"]
+        },
+        {
+            "action": "LOOK",
+            "class": "SYSTEM",
+            "type": "EXAMINE",
+            "prepositions_allowed": ["AT"],
+            "preposition_object_required": 1
+        },
+        {
+            "action": "WHISTLE",
+            "fallback": "YOU WHISTLE."
+        },
+        {
+            "action": "SING",
+            "fallback": "YOU HUM A SONG YOU HEARD RECENTLY FROM THE RADIO.",
+            "alias": ["HUM"]
+        },
+        {
+            "action": "EXCERCISE",
+            "fallback": "YOU BREAK OUT IN A SWEAT."
+        },
+        {
+            "action": "JUMP",
+            "fallback": "GO AHEAD AND JUMP."
+        },
+        {
+            "action": "LOVE",
+            "fallback": "%%%💖"
+        },
+        {
+            "action": "HATE",
+            "fallback": "%%%💔"
+        },
+        {
+            "action": "RING",
+            "alias": ["PUSH", "TOUCH"]
+        }
+    ]
+}

@@ -1,0 +1,422 @@
+async function indexDBCheck() {
+	await IDB.initDB().then(async (res) => {
+		if (res === 'DBEXISTS') {
+			startGame();
+		} else {
+			$(() => {
+				$('#titleScreen').css({ "display": "flex" });
+				if (options?.title) {
+					$('#titleHeader').html(options.title.toUpperCase());
+				}
+				if (options?.author) {
+					$('#titleAuthor').html(options.author.toUpperCase());
+				}
+				if (options?.tagline) {
+					$('#titleTag').html(options.tagline.toUpperCase());
+				}
+				$(window).on("click", () => {
+					startDatabase();
+				});
+
+				$(window).on("keydown", (e) => {
+					const key = (!e.which ? e.keyCode : e.which);
+					if (key) {
+						startDatabase();
+					}
+				});
+			});
+		}
+	}).catch(() => alert((options.test_mode) ? "ERROR: MAIN_INDEXDBCHECK_CATCH" : engineError));
+};
+
+function startDatabase() {
+	$(window).off("click");
+	$(window).off("keydown");
+
+	$('#titleScreen').fadeOut(async () => {
+		$('#loading').css({ "display": "flex" });
+		const dbSize = await IDB.dbSize();
+		if (confirm(options.title + " WILL NEED TO SAVE " + dbSize + " OF GAME DATA TO YOUR WEB BROWSER.") === true) {
+			await IDB.populateDB().then(() => {
+				startGame();
+			}).catch((error) => $('#loadingPara').html(error));
+		} else {
+			$('#loadingPara').html("SORRY, YOU WON'T BE ABLE TO PLAY WITHOUT SAVING THE GAME DATA. REFRESH THE PAGE IF YOU WOULD LIKE TO DO SO.");
+		}
+	});
+}
+
+async function startGame() {
+	$(window).off("click");
+	$(window).off("keydown");
+
+	//DOUBLE CHECK DATABASE EXISTS
+	const sceneCheck = await IDB.getByStore('scenes');
+	if (!sceneCheck || sceneCheck.length === 0) {
+		startDatabase();
+	} else {
+		//LOAD ADDITIONAL ASSETS
+		await loadAssets().then(() => {
+			$('#loading').fadeOut(async () => {
+				$('#wrapper').css({ "display": "flex" });
+				//START GAME ACTIONS
+				//CURSOR OPTIONS
+				$('#commandInput').on("focusin", () => {
+					$('#cursor').css({ visibility: 'visible' });
+				})
+
+				$('#commandInput').on("focusout", () => {
+					$('#cursor').css({ visibility: 'hidden' });
+				})
+
+				$(window).on("click", () => {
+					$('#commandInput').trigger("focus");
+				});
+
+				//DON'T ALLOW ARROW KEYS
+				$(window).on("keydown", (e) => {
+					const key = (!e.which ? e.keyCode : e.which);
+					//37 = LEFT ARROW, 38 = UP ARROW, 39 = RIGHT ARROW, 40 = DOWN ARROW
+					if (key == 37 || key == 38 || key == 39 || key == 40) {
+						return false;
+					} else {
+						$('#commandInput').trigger("focus");
+					}
+				});
+
+				$('#commandInput').on("keyup", async function (e) {
+					const key = (!e.which ? e.keyCode : e.which);
+					$('#commandDisplay').html($(this).val().toUpperCase());
+
+					//32 = SPACE
+					if (key == 32) {
+						$('#cursor').css({ marginLeft: "20px" });
+					} else {
+						$('#cursor').css({ marginLeft: "0px" });
+					}
+
+					//13 = ENTER
+					if (key == 13 && $('#commandDisplay').html() != '') { //SANITIZE INPUT
+						let playerInput = $('#commandDisplay').html().trim().toUpperCase().replace(/\s+/g, ' ');
+						let playerPunct = playerInput[playerInput.length - 1];
+
+						//REMOVE ENDING PUNCTUATION
+						if (playerPunct === '!'
+							|| playerPunct === '.'
+							|| playerPunct === '?'
+							|| playerPunct === ','
+							|| playerPunct === ';'
+						) {
+							playerInput = playerInput.substring(0, playerInput.length - 1);
+						} else {
+							playerPunct = '';
+						};
+
+						const safeCMD = await CMD.removeProfanity(playerInput);
+						await writeToScreen(['>' + safeCMD + playerPunct]);
+						const cmdRes = await CMD.command(safeCMD); //SEND COMMAND AND PRINT RESULT
+
+						//IF CMD RESPONSE
+						if (cmdRes) {
+							if (cmdRes.error) {
+								showError(cmdRes.error);
+							} else {
+								if (player.hasOwnProperty('moves') && !cmdRes.noMovement) {
+									await updateMoves();
+								}
+								if (cmdRes.sceneTitle) {
+									$('#currentScene > h4').html(cmdRes.sceneTitle);
+								}
+
+								$('#currentScore > h4').html((player.hasOwnProperty('score')) ? 'SCORE: ' + player.score : '');
+
+								writeToInventory();
+
+								if (cmdRes?.response) {
+									writeToScreen(cmdRes.response);
+								}
+
+								if (cmdRes.setCommand) {
+									writeToCommand(cmdRes.setCommand);
+								}
+
+								if (cmdRes.fx) {
+									window[cmdRes.fx]();
+								}
+							}
+						} else {
+							showError("STARTGAME_CMDRES_NO");
+						}
+					}
+				});
+
+				$('.ACTIONITEM, .ACTIONDIRECTION, .ACTIONCHARACTER, .ACTIONDOOR').off("click");
+				$('.ACTIONITEM, .ACTIONDIRECTION, .ACTIONCHARACTER, .ACTIONDOOR').on("click", function () {
+					writeToCommand($(this).text());
+				});
+
+				$('#commandInput').trigger("focus");
+				$('#commandInput').val('');
+
+				//GET SCENE FOR INITIAL PAGE LOAD
+				const setPlayer = await CMD.command('SETPLAYER ' + player.scene, 1);
+				if (setPlayer.error) {
+					showError(setPlayer.error);
+				} else {
+					//SET CURRENT SCENE HEADER AND WRITE SCENE RESPONSE
+					$('#currentScene > h4').html((setPlayer?.sceneTitle || ''));
+					$('#moveCounter > h4').html((player.hasOwnProperty('moves')) ? 'MOVES: ' + player.moves : '');
+					$('#currentScore > h4').html((player.hasOwnProperty('score')) ? 'SCORE: ' + player.score : '');
+					if (options.show_inventory !== 0) {
+						inventoryToggle();
+						writeToInventory();
+					}
+					await writeToScreen(setPlayer.response);
+				}
+			});
+		}).catch((error) => $('#loadingPara').html(error));
+	}
+}
+
+function loadAssets() {
+	//LOAD GAME ASSET FILES 
+	//CAPITALIZE ALL STRING VALUES FOR FULL COMPATABILITY
+	//PARSE INT ALL NUMBER VALUES
+	//PROFANITY
+	return new Promise(async (resolve, reject) => {
+		try {
+			scenes = await IDB.getByStore('scenes').catch(() => { return reject((options.test_mode) ? 'ERROR: MAIN_LOADASSETS_SCENES' : engineError) }) || [];
+			items = await IDB.getByStore('items').catch(() => { return reject((options.test_mode) ? 'ERROR: MAIN_LOADASSETS_ITEMS' : engineError) }) || [];
+			doors = await IDB.getByStore('doors').catch(() => { return reject((options.test_mode) ? 'ERROR: MAIN_LOADASSETS_DOORS' : engineError) }) || [];
+			characters = await IDB.getByStore('characters').catch(() => { return reject((options.test_mode) ? 'ERROR: MAIN_LOADASSETS_CHARACTERS' : engineError) }) || [];
+			events = await IDB.getByStore('events').catch(() => { return reject((options.test_mode)? 'ERROR: MAIN_LOADASSETS_EVENTS' : engineError) }) || [];
+			player = await IDB.getByStoreWithKeys('player').catch(() => { return reject((options.test_mode) ? 'ERROR: MAIN_LOADASSETS_OPTIONS' : engineError) }) || [];
+
+			$.getJSON("assets/json/profanity.json", (prof) => {
+				profanity = prof;
+				if (profanity?.profanity && profanity.profanity.length > 0) {
+					for (let i = 0; i < profanity.profanity.length; i++) {
+						profanity.profanity[i] = profanity.profanity[i].toUpperCase();
+					}
+				}
+				if (profanity?.safewords && profanity.safewords.length > 0) {
+					for (let ii = 0; ii < profanity.safewords.length; ii++) {
+						profanity.safewords[ii] = profanity.safewords[ii].toUpperCase();
+					}
+				}
+			}).then(() => {
+				//ACTIONS
+				$.getJSON("assets/json/actions.json", (a) => {
+					actions = a.actions;
+
+					if (actions && actions.length > 0) {
+						for (let i = 0; i < actions.length; i++) {
+							actions[i].action = actions[i].action.toUpperCase();
+							if (actions[i].class) {
+								actions[i].class = actions[i].class.toUpperCase();
+							}
+							if (actions[i].type) {
+								actions[i].type = actions[i].type.toUpperCase();
+							}
+							if (actions[i].flavor) {
+								actions[i].flavor = actions[i].flavor.toUpperCase();
+							}
+							if (actions[i].fallback) {
+								actions[i].fallback = actions[i].fallback.toUpperCase();
+							}
+							if (!isNaN(actions[i].preposition_required)) {
+								actions[i].preposition_required = parseInt(actions[i].preposition_required);
+							}
+							if (!isNaN(actions[i].dev_action)) {
+								actions[i].dev_action = parseInt(actions[i].dev_action);
+							}
+							if (!isNaN(actions[i].skip_events)) {
+								actions[i].skip_events = parseInt(actions[i].skip_events);
+							}
+							if (actions[i]?.alias && actions[i].alias.length > 0) {
+								for (let ii = 0; ii < actions[i].alias.length; ii++) {
+									actions[i].alias[ii] = actions[i].alias[ii].toUpperCase();
+								}
+							}
+							if (actions[i]?.prepositions_allowed && actions[i].prepositions_allowed.length > 0) {
+								for (let ii = 0; ii < actions[i].prepositions_allowed.length; ii++) {
+									actions[i].prepositions_allowed[ii] = actions[i].prepositions_allowed[ii].toUpperCase();
+								}
+							}
+						}
+					}
+				}).then(() => {
+					import('./modules/command.js')
+						.then(cmdmodule => {
+							CMD = cmdmodule;
+							return resolve();
+						})
+						.catch(() => reject((options.test_mode) ? 'ERROR: MAIN_LOADASSETS_COMMAND' : engineError));
+				}).fail(() => {
+					return reject((options.test_mode) ? 'ERROR: MAIN_LOADASSETS_ACTIONS' : engineError);
+				});
+			}).fail(() => {
+				return reject((options.test_mode) ? 'ERROR: MAIN_LOADASSETS_PROFANITY' : engineError);
+			});
+		} catch (e) {
+			return reject((options.test_mode) ? 'ERROR: MAIN_LOADASSETS_CATCH' : engineError);
+		}
+	})
+}
+
+//LOOP THROUGH ALL MESSAGES
+async function writeToScreen(messages) {
+	$(window).off("keyup click");
+	//CLEAR AND DISABLE PLAYER INPUT WHILE PRINTING
+	$('#commandInput').val('');
+	$('#commandDisplay').html('');
+	$('#cursor').css({ visibility: 'hidden' });
+	$('#commandInput').prop("disabled", true);
+
+	for (let x = 0; x < messages.length; x++) {
+		//CHECK FOR MESSAGE PAUSE
+		if (messages[x] === '---' || messages[x] === '@@@') {
+			const fullClear = (messages[x] === '---') ? 1 : 0;
+			messages.splice(x, 1);
+			writeToScreen(["PLEASE PUSH ANY KEY TO CONTINUE."]);
+			$(window).on("keyup click", () => {
+				if (fullClear) {
+					$('#storybook').html('');
+				} else {
+					$("#storybook > p:last-child").remove();
+				}
+				writeToScreen(messages);
+			});
+			break;
+		}
+
+		$('#storybook').append('<p class="monologuist textStyle"></p>');
+		await typewriter(messages[x])
+			.then(() => {
+				if (x === messages.length - 1) {
+					//WHEN FINAL MESSAGE COMPLETE REANABLE PLAYER INPUT
+					$('#cursor').css({ visibility: 'visible' });
+					$('#commandInput').prop("disabled", false);
+				}
+			});
+		messages.splice(x, 1);
+		x--;
+	}
+	$('.ACTIONITEM, .ACTIONDIRECTION, .ACTIONCHARACTER, .ACTIONDOOR').off("click");
+	$('.ACTIONITEM, .ACTIONDIRECTION, .ACTIONCHARACTER, .ACTIONDOOR').on("click", function () {
+		writeToCommand($(this).text());
+	});
+}
+
+//LOOP THROUGH AND PRINT MESSAGE WORD BY WORD
+async function typewriter(message) {
+	return new Promise(async (resolve, reject) => {
+		message = message.split(' ');
+
+		let i = 0;
+		const write = () => {
+			let printMsg = message[i];
+			//CHECK FOR SPECIAL WORDS
+			const wordDecoration = message[i].slice(0, 3);
+			//CHECK FOR PUNCTUATION
+			let punctCheck = message[i].slice(-1);
+			let sliced = message[i].slice(3).replaceAll('_', ' ');
+
+			if (punctCheck === '.' || punctCheck === ',' || punctCheck === '?' || punctCheck === '!' || punctCheck === ';' || punctCheck === ':' || punctCheck === '-') {
+				sliced = sliced.slice(0, -1);
+			} else {
+				punctCheck = '';
+			};
+
+			//SET SPECIAL WORDS
+			if (wordDecoration === '^^^') {//DIRECTIONS && SCENES
+				printMsg = '<span class="ACTIONWRAP"><span class="DIRECTIONIMAGE"><img src="assets/images/arrows.png"></span><span class="ACTIONDIRECTION">' + sliced + '</span></span>' + punctCheck;
+				const sceneToPrint = scenes.filter((scene) => {
+					return sliced === scene.name;
+				})[0];
+				if (sceneToPrint) {
+					printMsg = '<span class="ACTIONWRAP"><span class="DIRECTIONIMAGE"><img src="assets/images/arrows.png"></span><span class="ACTIONDIRECTION">' + ((!sceneToPrint.title) ? sceneToPrint.name : sceneToPrint.title) + '</span></span>' + punctCheck;
+				}
+			} else if (wordDecoration === '|||') {//ITEMS
+				//GET ITEM SET RESPONSE
+				const itemToPrint = items.filter((item) => {
+					return sliced === item.name;
+				})[0];
+				printMsg = '<span class="ACTIONWRAP"><span class="IMAGESIZE">' + ((itemToPrint.image) ? itemToPrint.image : '') + '</span><span class="ACTIONITEM">' + ((!itemToPrint.title) ? itemToPrint.name : itemToPrint.title) + '</span></span>' + punctCheck;
+			} else if (wordDecoration === '+++') {//SCENE TITLE
+				const sceneToPrint = scenes.filter((scene) => {
+					return sliced === scene.name;
+				})[0];
+				printMsg = '<span class="ACTIONWRAP"><span class="IMAGESIZE">' + ((sceneToPrint.image) ? sceneToPrint.image : '') + '</span><span class="UNDERLINED">' + ((!sceneToPrint.title) ? sceneToPrint.name : sceneToPrint.title) + '</span></span>' + punctCheck;
+			} else if (wordDecoration === '***') {//DOORS
+				const doorToPrint = doors.filter((door) => {
+					return sliced === door.name;
+				})[0];
+				printMsg = '<span class="ACTIONWRAP"><span class="IMAGESIZE">' + ((doorToPrint.image) ? doorToPrint.image : '') + '</span><span class="ACTIONDOOR">' + ((!doorToPrint.title) ? doorToPrint.name : doorToPrint.title) + '</span></span>' + punctCheck;
+			} else if (wordDecoration === '###') {//CHARACTERS
+				const characterToPrint = characters.filter((character) => {
+					return sliced === character.name;
+				})[0];
+				printMsg = '<span class="ACTIONWRAP"><span class="IMAGESIZE">' + ((characterToPrint.image) ? characterToPrint.image : '') + '</span><span class="ACTIONCHARACTER">' + ((!characterToPrint.title) ? characterToPrint.name : characterToPrint.title) + '</span></span>' + punctCheck;
+			} else if (wordDecoration === '___') {///UNDERLINE
+				printMsg = '<span class="UNDERLINED">' + sliced + '</span>' + punctCheck;
+			} else if (wordDecoration === '///') {//ITALICS
+				printMsg = '<span class="ITALICIZED">' + sliced + '</span>' + punctCheck;
+			} else if (wordDecoration === '%%%') {//IMAGE
+				printMsg = '<span class="IMAGESIZE">' + sliced + '</span>' + punctCheck;
+			} else if (wordDecoration === '>>>') {//LINE BREAKS
+				printMsg = '</br>';
+			} else if (wordDecoration === '~~~') {//CENTER
+				printMsg = '<span class="MONOLOGUISTCENTER">' + sliced + '</span>' + punctCheck;
+			} else if (wordDecoration === 'C64') {//FONT LINK
+				printMsg = '<span class="MONOLOGUISTCENTER">FONT - <a id="fontLink" href="http://style64.org/c64-truetype" target="_blank">C64 PRO</a></span>';
+			}
+
+			$("#storybook > p:last-child").append(printMsg.toUpperCase() + " ");
+			$("#storybook").scrollTop($("#storybook")[0].scrollHeight);
+
+			if (i < message.length - 1) {
+				i += 1;
+				setTimeout(() => write(), 10);
+			} else {
+				resolve();
+			}
+		};
+		write();
+	});
+};
+
+async function writeToInventory() {
+	$('#inventoryList').html('');
+	const setInv = await CMD.command('LISTINVENTORY', 1);
+	if (setInv?.inventory) {
+		for (let i = 0; i < setInv.inventory.length; i++) {
+			$('#inventoryList').prepend("<li><span class='IMAGESIZE ITEMIMAGE'>" + (setInv.inventory[i].image || '') + "</span><span class='ITEMNAME ACTIONITEM textStyle'>" + setInv.inventory[i].item.toUpperCase() + ((setInv.inventory[i].owner) ? " [" + setInv.inventory[i].owner + "]" : "") + "</span></li>");
+		}
+	}
+}
+
+function writeToCommand(command) {
+	const curCommand = $('#commandInput').val();
+	const spaceCheck = curCommand.slice(-1);
+
+	if (spaceCheck === ' ' || !spaceCheck) {
+		command = curCommand + command;
+	} else {
+		command = curCommand + " " + command;
+	}
+
+	$('#commandInput').val(command.toUpperCase());
+	$('#commandDisplay').html(command.toUpperCase());
+	$('#cursor').css({ marginLeft: "0px" });
+}
+
+async function updateMoves() {
+	//UPDATE MOVES COUNTER DISPLAY
+	player.moves = player.moves + 1;
+	const updateMoves = await IDB.setValue('player', player.moves, 'moves').catch(() => { return { error: "MAIN_MOVES_IDB_ERROR" } });
+	if (updateMoves?.error) {
+		return showError("MAIN_MOVES_UPDATE_ERROR");
+	}
+	$('#moveCounter > h4').html('MOVES: ' + player.moves);
+}
