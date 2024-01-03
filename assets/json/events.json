@@ -90,7 +90,7 @@
                 "object": {
                     "name": "ROSE"
                 },
-                "indirect": {
+                "indirect_object": {
                     "name": "BETTY",
                     "scene": "PLAYER"
                 }
@@ -101,7 +101,8 @@
                 "items": [
                     {
                         "name": "ROSE",
-                        "owner": ""
+                        "owner": "",
+                        "scene": ""
                     }
                 ]
             }
@@ -141,6 +142,39 @@
             },
             "effect": {
                 "response": "YOU'LL NEED TO FIND NEW BATTERIES BEFORE IT WILL WORK."
+            }
+        },
+        {
+            "name": "ACTIVATE_FLASHLIGHT",
+            "active": 1,
+            "action": ["PUT"],
+            "before": 1,
+            "event_only": 1,
+            "cause": {
+                "object": {
+                    "name": "BATTERIES",
+                    "scene": "PLAYER"
+                },
+                "indirect_object": {
+                    "name": "FLASHLIGHT",
+                    "scene": "PLAYER"
+                }
+            },
+            "effect": {
+                "response": "YOU PLACE THE BATTERIES INTO THE FLASHLIGHT AND TURN IT ON. A BRIGHT YELLOW BEAM APPEARS IN FRONT OF YOU. YOU TURN THE FLASHLIGHT OFF AND PLACE IT BACK IN YOUR POCKET.",
+                "items": [
+                    {
+                        "name": "BATTERIES",
+                        "scene": "",
+                        "owner": ""
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "STOP_FLASHLIGHT",
+                        "active": 0
+                    }
+                ]
             }
         }
     ]

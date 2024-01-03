@@ -762,39 +762,46 @@ async function setEncountered() {
 		return s.name === player.scene;
 	})[0];
 	const sceneCharacters = characters.filter((c) => {
-		return c.scene === player.scene;
+		return c.scene === player.scene && c.encountered !== 1;
 	});
 	const sceneItems = items.filter((it) => {
-		const itOwner = getOwner(it);
-		if (itOwner) {
-			if (itOwner?.scene === player.scene) {
-				let subCheck = itOwner;
-				while (subCheck.subordinate) {
-					if (subCheck.container) {
-						if (subCheck.transparent !== 1 && subCheck.container !== "O" && subCheck.container !== "E") {
-							return false;
-						} else if (subCheck.container === "O" && subCheck.open !== 1) {
-							return false;
+		if (it.encountered !== 1) {
+			const itOwner = getOwner(it);
+			if (itOwner) {
+				if (itOwner?.scene === player.scene) {
+					let subCheck = itOwner;
+					while (subCheck.subordinate) {
+						if (subCheck.container) {
+							if (subCheck.transparent !== 1 && subCheck.container !== "O" && subCheck.container !== "E") {
+								return false;
+							} else if (subCheck.container === "O" && subCheck.open !== 1) {
+								return false;
+							}
 						}
+						subCheck = subCheck.subordinate;
 					}
-					subCheck = subCheck.subordinate;
-				}
-				return true;
+					return true;
+				} else {
+					return false;
+				};
 			} else {
-				return false;
-			};
-		} else {
-			return it?.scene === player.scene;
+				return it?.scene === player.scene;
+			}
 		}
 	});
+
 	const sceneDoors = doors.filter((d) => {
-		if (d.scene === player.scene) {
-			return true;
+		if (d.encountered !== 1) {
+			if (d.scene === player.scene) {
+				return true;
+			} else {
+				return d.paths.filter((dp) => {
+					return dp.scene === player.scene;
+				})[0];
+			};
 		} else {
-			return d.paths.filter((dp) => {
-				return dp.scene === player.scene;
-			})[0];
-		};
+			return false;
+		}
 	});
 
 	//SET CURRENT SCENE TO VISITED

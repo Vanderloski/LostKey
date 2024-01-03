@@ -32,9 +32,9 @@ export const event = async (command, before) => {
                                     testPass = false;
                                 }
                             }
-                        } else if ((keys[x] === "object" && object) || (keys[x] === "indirect" && indirect)) {//IF OBJECT
+                        } else if ((keys[x] === "object" && object) || (keys[x] === "indirect_object" && indirect)) {//IF OBJECT
                             let testFilter;
-                            const curObject = (keys[x] === "indirect") ? indirect : object;
+                            const curObject = (keys[x] === "indirect_object") ? indirect : object;
                             for (let y = 0, conditions = Object.keys(cause[keys[x]]); y < conditions.length; y++) {
                                 const testObject = (curObject.item) ? items : (curObject.character) ? characters : (curObject.door) ? doors : "";
                                 if (!testObject) {

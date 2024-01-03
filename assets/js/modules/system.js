@@ -23,7 +23,7 @@ async function inventory() {
                 return c.name === it.owner;
             })[0];
             const itemOwner = items.filter((io) => {
-                return io.name === it.owner; 
+                return io.name === it.owner;
             })[0];
             it.ownerOrder = (it.owner === "PLAYER") ? "A" : it.owner || "Z";
             return it.encountered === 1 && (it.owner === "PLAYER" || (charOwner?.scene === player.scene && charOwner?.affinity === "F") || (itemOwner?.owner === "PLAYER"));
@@ -164,11 +164,13 @@ async function examine(command) {
                 if (object.search && object.search.length > 0) {
                     await addSearchItems(object);
                 }
-                return { response: [
-                    (((object?.open === 1) ? ((object?.description_open) ? object?.description_open : object?.description) : object.description) || 'THERE IS NOTHING DISCERNIBLE ABOUT ' + addThe(object) + '.') 
-                    + ((object.container === "O") ? " IT IS CURRENTLY " + ((object.open === 1) ? "OPEN." : "CLOSED.") : "")
-                    + ((object.activate === 1) ? " IT IS CURRENTLY " + ((object.on === 1) ? "ON." : "OFF.") : "")
-                ] };
+                return {
+                    response: [
+                        (((object?.open === 1) ? ((object?.description_open) ? object?.description_open : object?.description) : object.description) || 'THERE IS NOTHING DISCERNIBLE ABOUT ' + addThe(object) + '.')
+                        + ((object.container === "O") ? " IT IS CURRENTLY " + ((object.open === 1) ? "OPEN." : "CLOSED.") : "")
+                        + ((object.activate === 1) ? " IT IS CURRENTLY " + ((object.on === 1) ? "ON." : "OFF.") : "")
+                    ]
+                };
             } else if ((owner?.character && owner?.scene !== player.scene) || (owner?.item && owner?.scene !== player.scene)) {
                 return {
                     response: ["YOU CANNOT CURRENTLY SEE THAT."],
@@ -176,17 +178,28 @@ async function examine(command) {
                 };
             } else if (owner?.scene === player.scene) { //CHECK ITEMS HELD BY CHARACTERS AND CONTAINERS
                 if (owner?.character && owner.affinity === "F") {
-                    return { response: [
-                        (((object?.open === 1) ? ((object?.description_open) ? object?.description_open : object?.description) : object.description) || 'THERE IS NOTHING DISCERNIBLE ABOUT ' + addThe(object) + '.') 
-                        + ((object.container === "O") ? " IT IS CURRENTLY " + ((object.open === 1) ? "OPEN." : "CLOSED.") : "")
-                        + ((object.activate === 1) ? " IT IS CURRENTLY " + ((object.on === 1) ? "ON." : "OFF.") : "")
-                    ] };
+                    return {
+                        response: [
+                            (((object?.open === 1) ? ((object?.description_open) ? object?.description_open : object?.description) : object.description) || 'THERE IS NOTHING DISCERNIBLE ABOUT ' + addThe(object) + '.')
+                            + ((object.container === "O") ? " IT IS CURRENTLY " + ((object.open === 1) ? "OPEN." : "CLOSED.") : "")
+                            + ((object.activate === 1) ? " IT IS CURRENTLY " + ((object.on === 1) ? "ON." : "OFF.") : "")
+                        ]
+                    };
                 } else if (owner?.item) {
-                    return { response: [
-                        (((object?.open === 1) ? ((object?.description_open) ? object?.description_open : object?.description) : object.description) || 'THERE IS NOTHING DISCERNIBLE ABOUT ' + addThe(object) + '.') 
-                        + ((object.container === "O") ? " IT IS CURRENTLY " + ((object.open === 1) ? "OPEN." : "CLOSED.") : "")
-                        + ((object.activate === 1) ? " IT IS CURRENTLY " + ((object.on === 1) ? "ON." : "OFF.") : "")
-                    ] };
+                    if (owner?.container === "E" || (owner?.container === "O" && owner?.open === 1) || owner?.transparent === 1) {
+                        return {
+                            response: [
+                                (((object?.open === 1) ? ((object?.description_open) ? object?.description_open : object?.description) : object.description) || 'THERE IS NOTHING DISCERNIBLE ABOUT ' + addThe(object) + '.')
+                                + ((object.container === "O") ? " IT IS CURRENTLY " + ((object.open === 1) ? "OPEN." : "CLOSED.") : "")
+                                + ((object.activate === 1) ? " IT IS CURRENTLY " + ((object.on === 1) ? "ON." : "OFF.") : "")
+                            ]
+                        };
+                    } else {
+                        return {
+                            response: ["YOU CANNOT CURRENTLY SEE THAT."],
+                            noMovement: 1
+                        }
+                    }
                 } else {
                     return {
                         response: ["###" + owner.name.replaceAll() + " WON'T SHOW THAT TO YOU."],
@@ -210,7 +223,7 @@ async function addSearchItems(search) {
         })[0];
         if (searchToUpdate) {
             searchToUpdate.owner = search.name;
-            const searchUpdate = IDB.setValue("items", searchToUpdate).catch(() => { return { error: "EXAMINE_SEARCH_IDB_ERROR"} });
+            const searchUpdate = IDB.setValue("items", searchToUpdate).catch(() => { return { error: "EXAMINE_SEARCH_IDB_ERROR" } });
             if (searchUpdate?.error) {
                 return searchUpdate;
             }
