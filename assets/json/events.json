@@ -44,37 +44,26 @@
             }
         },
         {
-            "name": "PLACE_BETTY",
-            "active": 0,
-            "repeatable": 1,
-            "effect": {
-                "characters": [
-                    {
-                    "name": "BETTY",
-                    "scene": "PLAYER"
-                    }
-                ]
-            }
-        },
-        {
             "name": "STOP_ROSE",
             "action": ["GET"],
-            "active": 0,
+            "active": 1,
             "repeatable": 1,
             "event_only": 1,
             "before": 1,
             "cause": {
                 "object": {
-                    "name": "ROSE",
-                    "encountered": 1
+                    "name": "ROSE"
                 },
-                "player": {
-                    "scene": "BHFP"
-                },
+                "items": [
+                    {
+                        "name": "ROSE",
+                        "owner": "ROSE BUSHES"
+                    }
+                ],
                 "characters": [
                     {
                         "name": "BETTY",
-                        "scene": "BHFP"
+                        "scene": "PLAYER"
                     }
                 ]
             },
@@ -86,14 +75,21 @@
             "name": "SCORE_ROSE",
             "action": ["GIVE"],
             "active": 1,
+            "before": 1,
+            "event_only": 1,
             "cause": {
                 "object": {
                     "name": "ROSE"
                 },
                 "indirect_object": {
-                    "name": "BETTY",
-                    "scene": "PLAYER"
-                }
+                    "name": "BETTY"
+                },
+                "items": [
+                    {
+                        "name": "ROSE",
+                        "owner_neq": "ROSE BUSHES"
+                    }
+                ]
             },
             "effect": {
                 "response": "\"OH, SUCH A PRETTY FLOWER, THANK YOU!\", BETTY GIVES YOU A KISS ON THE CHEEK.",
@@ -103,6 +99,12 @@
                         "name": "ROSE",
                         "owner": "",
                         "scene": ""
+                    }
+                ],
+                "events": [
+                    {
+                        "name": "SCORE_ROSE",
+                        "active": 0
                     }
                 ]
             }
@@ -124,20 +126,165 @@
                         "help": ["\"WE CAN'T WATCH A MOVIE WITHOUT SOME POPCORN!\""],
                         "responses": ["\"WE CAN'T WATCH A MOVIE WITHOUT SOME POPCORN!\""]
                     }
+                ],
+                "events": [
+                    {
+                        "name": "DRIVE_IN_FX_STOP",
+                        "active": 1
+                    }
                 ]
+            }
+        },
+        {
+            "name": "DRIVE_IN_FX_STOP",
+            "cause": {
+                "player": {
+                    "owner": "THUNDERBIRD"
+                },
+                "items": [
+                    {
+                        "name": "POPCORN",
+                        "scene": "PLAYER"
+                    }
+                ]
+            },
+            "effect": {
+                "fx": "DRIVEINTHEATER_STOP",
+                "events": [
+                    {
+                        "name": "DRIVE_IN_FX",
+                        "active": 0
+                    }
+                ],
+                "doors": [
+                    {
+                        "name": "PROJECTION BOOTH DOOR",
+                        "locked": 0,
+                        "no_lock": 1,
+                        "no_lock_message": "THE LOCK LOOKS TO HAVE BEEN BROKEN AND NO LONGER FUNCTIONAL.",
+                        "paths": [
+                            {
+                                "scene": "CSTAND",
+                                "description": "A GRAY METAL DOOR WITH A SIGN THAT SAYS \"STAFF ONLY\" TAPED TO IT.",
+                                "no_lock": 1,
+                                "no_lock_message": "THE LOCK LOOKS TO HAVE BEEN BROKEN AND NO LONGER FUNCTIONAL."
+                            },
+                            {
+                                "scene": "DITL",
+                                "description": "A GRAY METAL DOOR WITH A SIGN THAT SAYS \"STAFF ONLY\" TAPED TO IT.",
+                                "no_lock": 1,
+                                "no_lock_message": "THE LOCK LOOKS TO HAVE BEEN BROKEN AND NO LONGER FUNCTIONAL."
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "name": "PAY_JIM",
+            "action": ["GIVE"],
+            "active": 1,
+            "before": 1,
+            "event_only": 1,
+            "cause": {
+                "object": {
+                    "name": "MONEY"
+                },
+                "indirect_object": {
+                    "name": "JIM"
+                }
+            },
+            "effect": {
+                "response": "\"ONE BAG OF FRESHLY POPPED CORN, COMING UP.\" JIM SCOOPS A LARGE PILE OF POPCORN AND THROWS IT INTO A PAPER BAG AND DRIZZLES IT IN HOT BUTTER. HE TAKES YOUR MONEY AND HANDS THE BAG OVER TO BETTY. \"ENJOY THE MOVIE, IT'S ABOUT TO START.\" JIM SLIPS OUT FROM THE CONCESSION STAND AND HEADS INTO THE PROJECTION BOOTH ROOM.",
+                "score": 100,
+                "items": [
+                    {
+                        "name": "MONEY",
+                        "owner": "",
+                        "scene": ""
+                    },
+                    {
+                        "name": "POPCORN",
+                        "owner": "BETTY",
+                        "scene": "",
+                        "unobtainable": 0
+                    }
+                ],
+                "effects": [
+                    {
+                        "name": "PAY_JIM",
+                        "active": 0
+                    },
+                    {
+                        "name": "PAY_JIM_2",
+                        "active": 0
+                    },
+                    {
+                        "name": "PAY_JIM_3",
+                        "active": 0
+                    },
+                    {
+                        "name": "DRIVE_FX_STOP",
+                        "active": 1
+                    }
+                ]
+            }
+        },
+        {
+            "name": "PAY_JIM_2",
+            "action": ["PAY"],
+            "active": 1,
+            "before": 1,
+            "event_only": 1,
+            "repeatable": 1,
+            "cause": {
+                "object": {
+                    "name": "JIM"
+                },
+                "items": [
+                    {
+                        "name": "MONEY",
+                        "encountered": 1,
+                        "scene": "PLAYER"
+                    }
+                ]
+            },
+            "effect": {
+                "same_as": "PAY_JIM"
+            }
+        },
+        {
+            "name": "PAY_JIM_3",
+            "action": ["PURCHASE", "BUY"],
+            "active": 1,
+            "before": 1,
+            "event_only": 1,
+            "cause": {
+                "object": {
+                    "name": "POPCORN"
+                },
+                "items": [
+                    {
+                        "name": "MONEY",
+                        "encountered": 1,
+                        "scene": "PLAYER"
+                    }
+                ]
+            },
+            "effect": {
+                "same_as": "PAY_JIM"
             }
         },
         {
             "name": "STOP_FLASHLIGHT",
             "active": 1,
             "repeatable": 1,
-            "action": ["TURN","ACTIVATE"],
+            "action": ["TURN","ACTIVATE","SWITCH"],
             "before": 1,
             "event_only": 1,
             "cause": {
                 "object": {
-                    "name": "FLASHLIGHT",
-                    "scene": "PLAYER"
+                    "name": "FLASHLIGHT"
                 }
             },
             "effect": {
@@ -152,16 +299,14 @@
             "event_only": 1,
             "cause": {
                 "object": {
-                    "name": "BATTERIES",
-                    "scene": "PLAYER"
+                    "name": "BATTERIES"
                 },
                 "indirect_object": {
-                    "name": "FLASHLIGHT",
-                    "scene": "PLAYER"
+                    "name": "FLASHLIGHT"
                 }
             },
             "effect": {
-                "response": "YOU PLACE THE BATTERIES INTO THE FLASHLIGHT AND TURN IT ON. A BRIGHT YELLOW BEAM APPEARS IN FRONT OF YOU. YOU TURN THE FLASHLIGHT OFF AND PLACE IT BACK IN YOUR POCKET.",
+                "response": "YOU PLACE THE BATTERIES INTO THE |||FLASHLIGHT AND FLIP THE SWITCH. A BRIGHT YELLOW BEAM OF FLUORESCENT LIGHT MAKES A CIRCLE ON THE GROUND IN FRONT OF YOU. YOU NOW HAVE A WORKING FLASHLIGHT. YOU SWITCH IT OFF AND PLACE IT IN YOUR POCKET.",
                 "items": [
                     {
                         "name": "BATTERIES",

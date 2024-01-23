@@ -5,6 +5,8 @@ export const movement = async (command) => {
 			return await setScene(command);
 		} else if (command.action.type === "MOVEPLAYER" || command.action.type === "MOVEPLAYERACTION" || command.action.type === "MOVEPLAYERSCENE") {
 			return await movePlayer(command);
+		} else if (command.action?.type === "ENTEREXIT") {
+			return await enterExit(command);
 		} else {
 			return false;
 		}
@@ -16,6 +18,7 @@ export const movement = async (command) => {
 async function setScene(command) {
 	const respArr = [];
 	const scene = command.object;
+	let sceneDesc = scene.description;
 
 	//CHECK IF FIRST PLAY AND OPENING IS NEEDED
 	if (player?.first !== 1) {
@@ -30,7 +33,12 @@ async function setScene(command) {
 		player.first = 1;
 	}
 
-	respArr.push('+++' + scene.name.replaceAll(' ', '_'), scene.description);
+	//CHECK LIGHT OF CURRENT SCENE
+	const curIsLight = sceneLight(scene);
+	if (!curIsLight) {
+		sceneDesc = "IT'S TOO DARK TO SEE ANYTHING.";
+	}
+	respArr.push('+++' + scene.name.replaceAll(' ', '_'), sceneDesc);
 	player.scene = scene.name;
 
 	const updateScene = await IDB.setValue('player', scene.name, 'scene').catch(() => { return { error: "SETSCENE_UPDATE_SCENE_IDB_ERROR" } });
@@ -58,6 +66,18 @@ async function movePlayer(command) {
 		};
 	}
 
+	if (action.originalAction === "DRIVE") {
+		const isVeh = items.filter((it) => {
+			return it.name === player.owner;
+		})[0];
+		if (!player.owner && isVeh?.container !== "V") {
+			return {
+				response: ["YOU ARE NOT CURRENTLY INSIDE A VEHICLE."],
+				noMovement: 1
+			}
+		}
+	}
+
 	//SET MOVEMENT, IF NO OBJECT ACTION IS MOVEMENT
 	const move = object?.name || action.action;
 
@@ -67,6 +87,15 @@ async function movePlayer(command) {
 	})[0];
 
 	if (sceneObj) {
+		//CHECK LIGHT OF CURRENT SCENE
+		const curIsLight = sceneLight(sceneObj);
+		if (!curIsLight) {
+			return {
+				response: ["IT'S TOO DARK TO KNOW WHICH WAY THAT IS."],
+				noMovement: 1
+			}
+		}
+
 		//CHECK EXITS
 		if (sceneObj?.exits) {
 			//CHECK BY DIRECTION
@@ -167,6 +196,15 @@ async function movePlayer(command) {
 						}
 					}
 
+					//CHECK LIGHT OF NEW SCENE
+					const isLight = sceneLight(newSceneObj);
+					if (!isLight) {
+						return {
+							response: ["IT'S TOO DARK TO GO THAT WAY."],
+							noMovement: 1
+						}
+					}
+
 					//UPDATE CURRENT SCENE TO NEW SCENE
 					player.scene = newSceneObj.name;
 					const updateCurScene = await IDB.setValue('player', player.scene, 'scene').catch(() => { return { error: "MOVEPLAYER_CURSCENE_IDB_ERROR" } });
@@ -192,6 +230,12 @@ async function movePlayer(command) {
 							respArr.push(description);
 						}
 
+						//CHECK IF ANY FOLLOWERS
+						const followers = await checkFollowers();
+						if (followers?.error) {
+							return followers;
+						}
+
 						return {
 							response: respArr,
 							sceneTitle: printTitle
@@ -206,5 +250,100 @@ async function movePlayer(command) {
 		}
 	} else {
 		return { error: "MOVEPLAYER_CURRENTSCENE_NOTFOUND" };
+	}
+}
+
+async function enterExit(command) {
+	const action = command?.action;
+	const object = command?.object;
+	const prep = command?.action?.preposition;
+	const rspMsg = [];
+
+	if (!object) {
+		return {
+			response: ["WHAT WOULD YOU LIKE TO " + action.originalAction + "?"],
+			noMovement: 1
+		};
+	}
+
+	if (object.scene !== player.scene) {
+		return {
+			response: ["YOU CANNOT CURRENTLY SEE THAT."],
+			noMovement: 1
+		}
+	} else if ((action.originalAction === "ENTER" || prep[0] === "INTO" || prep[0] === "IN") && object.name === player.owner) {
+		return {
+			response: ["YOU ARE ALREADY INSIDE " + addThe(object) + "."],
+			noMovement: 1
+		}
+	} else if ((action.originalAction === "EXIT" || prep[0] === "OUT") && !player.owner) {
+		return {
+			response: ["YOU ARE ALREADY OUTSIDE " + addThe(object) + "."],
+			noMovement: 1
+		}
+	} else if ((action.originalAction === "EXIT" || prep[0] === "OUT") && player.owner !== object.name) {
+		return {
+			response: ["YOU ARE NOT CURRENTLY INSIDE " + addThe(object) + "."],
+			noMovement: 1
+		}
+	} else if (object.container !== "V" && object.container_allow_player !== 1) {
+		return {
+			response: ["YOU CANNOT " + action.originalAction + " THAT."],
+			noMovement: 1
+		}
+	} else {
+		if (action.originalAction === "ENTER" || prep[0] === "INTO" || prep[0] === "IN") {
+			if (player.owner) {
+				const curOwner = items.filter((it) => {
+					return it.name === player.owner;
+				})[0];
+				rspMsg.push("YOU EXIT " + addThe(curOwner) + ".");
+			}
+			player.owner = object.name;
+		} else {
+			player.owner = "";
+		}
+
+		const newOwner = await IDB.setValue('player', player.owner, 'owner').catch(() => { return { error: "ENTEREXIT_OWNER_IDB_ERROR" }; });
+		if (newOwner?.error) {
+			return newOwner;
+		}
+
+		//CHECK IF ANY FOLLOWERS
+		const followers = await checkFollowers();
+		if (followers?.error) {
+			return followers;
+		}
+
+		const respAction = action.originalAction + ((prep[0]) ? " " + prep[0] : "") + ((prep[1]) ? " " + prep[1] : "");
+		rspMsg.push("YOU " + respAction + " " + addThe(object) + ".");
+		return { response: rspMsg };
+	}
+}
+
+async function checkFollowers() {
+	//CHECK FOR FOLLOWERS
+	const followers = characters.filter((c) => {
+		return c.follow;
+	});
+
+	if (followers && followers.length > 0) {
+		for (let i = 0; i < followers.length; i++) {
+			let fScene = player.scene;
+			let fOwner = player.owner;
+			if (followers[i].follow !== "PLAYER") {
+				const leader = characters.filter((l) => {
+					return l.name === followers[i].follow;
+				})[0];
+				fScene = leader.scene;
+				fOwner = leader.owner;
+			}
+			followers[i].scene = fScene;
+			followers[i].owner = fOwner;
+			const updateFollow = await IDB.setValue('characters', followers[i]).catch(() => { return { error: "MOVEPLAYER_FOLLOWER_IDB_ERROR" } });
+			if (updateFollow?.error) {
+				return updateFollow;
+			}
+		}
 	}
 }

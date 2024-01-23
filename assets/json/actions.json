@@ -62,23 +62,29 @@
         },
         {
             "action": "ENTER",
-            "class": "ITEM",
+            "class": "MOVEMENT",
+            "type": "ENTEREXIT"
+        },
+        {
+            "action": "EXIT",
+            "class": "MOVEMENT",
             "type": "ENTEREXIT",
-            "alias": ["EXIT", "LEAVE"]
+            "alias": ["LEAVE"]
         },
         {
             "action": "GET",
-            "class": "ITEM",
+            "alias": ["JUMP"],
+            "class": "MOVEMENT",
             "type": "ENTEREXIT",
             "preposition_required": 1,
-            "prepositions_allowed": ["IN", "OUT"]
+            "prepositions_allowed": ["IN", "INTO", "OUT"]
         },
         {
             "action": "CLIMB",
-            "class": "ITEM",
+            "class": "MOVEMENT",
             "type": "ENTEREXIT",
             "preposition_required": 1,
-            "prepositions_allowed": ["INTO", "OUT", "OUT OF"]
+            "prepositions_allowed": ["INTO", "OUT"]
         },
         {
             "action": "GET",
@@ -189,7 +195,7 @@
             "action": "GO",
             "class": "MOVEMENT",
             "type": "MOVEPLAYERACTION",
-            "alias": ["WALK", "HEAD", "AMBLE", "MEANDER", "MOVE", "TRAVEL", "NAVIGATE"],
+            "alias": ["WALK", "HEAD", "AMBLE", "MEANDER", "MOVE", "TRAVEL", "NAVIGATE", "DRIVE"],
             "prepositions_allowed": ["TO"]
         },
         {
@@ -261,6 +267,13 @@
         {
             "action": "RING",
             "alias": ["PUSH", "TOUCH"]
+        },
+        {
+            "action": "PAY"
+        },
+        {
+            "action": "BUY",
+            "alias": ["PURCHASE"]
         }
     ]
 }

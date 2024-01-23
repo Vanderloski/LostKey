@@ -60,7 +60,6 @@ export const command = async (command, devAction) => {
 	let evtRes;
 	let evtResAfter;
 	let cmdRes;
-	let syntaxFix = [];
 	const commandObj = await parseCommand(command);
 
 	//console.log(commandObj);
@@ -78,7 +77,7 @@ export const command = async (command, devAction) => {
 				response: ["I DON'T KNOW WHAT THAT IS."],
 				noMovement: 1
 			};
-		} else if (commandObj.indirectObject && ((commandObj.indirectObject.encountered !== 1 && (commandObj.indirectObject.character || commandObj.indirectObject.item)) || commandObj.indirectObject.invalid === 1)) {//IF A NON SCENE NON MOVEMENT OBJECT THAT IS NOT ENCOUNTERED
+		} else if (commandObj.indirectObject && commandObj.indirectObject.name !== "HELP" && ((commandObj.indirectObject.encountered !== 1 && (commandObj.indirectObject.character || commandObj.indirectObject.item)) || commandObj.indirectObject.invalid === 1)) {//IF A NON SCENE NON MOVEMENT OBJECT THAT IS NOT ENCOUNTERED
 			cmdRes = {
 				response: ["I DON'T KNOW WHAT THAT IS."],
 				noMovement: 1
@@ -105,14 +104,24 @@ export const command = async (command, devAction) => {
 	}
 
 	//IF NOT A SKIP EVENT ACTION
-	if (commandObj?.action?.skip_events !== 1) {
+	if (commandObj?.action?.skip_events !== 1 && commandObj?.no_event !== 1) {
 		evtResAfter = await EVENT.event(commandObj);
+	}
+
+	//SET CHARACTERS, ITEMS AND SCENES AGAIN IF CHANGE FROM EVENT
+	const encounteredAfter = await setEncountered();
+	if (encounteredAfter?.error) {
+		return encounteredAfter;
 	}
 
 	//ADD EVENTS TO RESPONSE
 	if (evtRes?.response && evtRes.response.length > 0) {
 		if (cmdRes) {
-			cmdRes.response.push(...evtRes.response);
+			if (cmdRes?.response) {
+				cmdRes.response.push(...evtRes.response);
+			} else {
+				cmdRes.response = evtRes.response;
+			}
 		} else {
 			cmdRes = evtRes;
 		}
@@ -128,7 +137,11 @@ export const command = async (command, devAction) => {
 	//ADD ENCOUNTERED TO RESPONSE
 	if (encountered?.response && encountered.response.length > 0) {
 		if (cmdRes) {
-			cmdRes.response.push(...encountered.response);
+			if (cmdRes?.response) {
+				cmdRes.response.push(...encountered.response);
+			} else {
+				cmdRes.response = encountered.response;
+			}
 		} else {
 			cmdRes = encountered;
 		}
@@ -137,11 +150,30 @@ export const command = async (command, devAction) => {
 	//ADD AFTER EVENTS TO RESPONSE
 	if (evtResAfter?.response && evtResAfter.response.length > 0) {
 		if (cmdRes) {
-			cmdRes.response.push(...evtResAfter.response);
+			if (cmdRes?.response) {
+				cmdRes.response.push(...evtResAfter.response);
+			} else {
+				cmdRes.response = evtResAfter.response;
+			}
 		} else {
 			cmdRes = evtResAfter;
 		}
 	}
+
+	//ADD ENCOUNTEREDAFTER TO RESPONSE
+	if (encounteredAfter?.response && encounteredAfter.response.length > 0) {
+		if (cmdRes) {
+			if (cmdRes?.response) {
+				cmdRes.response.push(...encounteredAfter.response);
+			} else {
+				cmdRes.response = encounteredAfter.response;
+			}
+		} else {
+			cmdRes = encounteredAfter;
+		}
+	}
+
+	//IF FX
 	if (evtResAfter?.fx) {
 		if (cmdRes) {
 			cmdRes.fx = evtResAfter.fx;
@@ -150,17 +182,17 @@ export const command = async (command, devAction) => {
 		}
 	}
 
-	let noResultRsp = "I DON'T UNDERSTAND";
+	let noResultRsp = "I DON'T UNDERSTAND.";
 	//IF VALID ACTION AND OBJECT
 	if (commandObj?.action && commandObj?.object && !commandObj?.object?.invalid) {
 		noResultRsp = "NOTHING HAPPENS.";
 	}
 
-	if (cmdRes && !cmdRes?.response) {
-		cmdRes.response = noResultRsp;
+	if (cmdRes && (!cmdRes?.response || cmdRes?.response.length === 0)) {
+		cmdRes.response = [noResultRsp];
 	}
-	cmdRes = (cmdRes) ? cmdRes : { response: [noResultRsp], noMovement: 1 };
 
+	cmdRes = (cmdRes) ? cmdRes : { response: [noResultRsp], noMovement: 1 };
 	return cmdRes;
 }
 
@@ -238,94 +270,83 @@ async function parseCommand(command) {
 
 	let filterAction = action;
 	let filterObject = object;
-	if (action.length === 1 && (!object || object.length <= 1) && (!indirectObject || indirectObject.length <= 1)) {
-		action[0].originalAction = commandArr[0];
-		action[0].preposition = prepArr;
-		action[0].inPreposition = indirectPrepArr;
-		return {
-			action: action[0],
-			object: (object) ? object[0] : undefined,
-			indirectObject: (indirectObject) ? indirectObject[0] : undefined
+	let filterIndirect = indirectObject;
+	if (action.length > 1 && (object && object.length === 1)) { //IF MULTIPLE ACTIONS BUT ONE OBJECT
+		//FILTER BY PREP
+		const prepFilter = action.filter((a) => {
+			return (a.prepositions_allowed) ? a.prepositions_allowed.includes(prepArr[0]) : false;
+		});
+
+		if (prepFilter.length > 0) {
+			filterAction = prepFilter;
 		}
-	} else if (action.length > 1 && (object && object.length === 1)) { //IF MULTIPLE ACTIONS BUT ONE OBJECT
-		//TRY AND FIND ACTION BY TYPE FROM FOUND OBJECT
-		object = object[0];
-		if (object?.item) {
-			filterAction = action.filter((a) => {
-				return a.class === "ITEM";
-			});
-		} else if (object?.door) {
-			filterAction = action.filter((a) => {
-				return a.class === "DOOR";
-			});
-		} else if (object?.character) {
-			filterAction = action.filter((a) => {
-				return a.class === "PERSON";
-			});
-		} else if (object?.scene) {
-			filterAction = action.filter((a) => {
-				return a.class === "MOVEMENT";
-			});
+
+		if (filterAction.length !== 1) {
+			//TRY AND FIND ACTION BY TYPE FROM FOUND OBJECT
+			if (object[0]?.item) {
+				filterAction = action.filter((a) => {
+					return a.class === "ITEM" || a.class === "MOVEMENT";
+				});
+			} else if (object[0]?.door) {
+				filterAction = action.filter((a) => {
+					return a.class === "DOOR";
+				});
+			} else if (object[0]?.character) {
+				filterAction = action.filter((a) => {
+					return a.class === "PERSON";
+				});
+			} else if (object[0]?.scene) {
+				filterAction = action.filter((a) => {
+					return a.class === "MOVEMENT";
+				});
+			}
 		}
 
 		//IF STILL MULTIPLE ACTIONS TRY AND FIND BY INDIRECT OBJECT IF EXISTS
 		if (filterAction.length !== 1 && (indirectObject && indirectObject.length === 1)) {
-			const filterIndirect = indirectObject[0];
-			filterAction = action;
-			if (filterIndirect?.item) {
-				filterAction = action.filter((a) => {
+			if (indirectObject[0]?.item) {
+				filterAction = filterAction.filter((a) => {
 					return a.class === "ITEM";
 				});
-			} else if (filterIndirect?.door) {
-				filterAction = action.filter((a) => {
+			} else if (indirectObject[0]?.door) {
+				filterAction = filterAction.filter((a) => {
 					return a.class === "DOOR";
 				});
-			} else if (filterIndirect?.character) {
-				filterAction = action.filter((a) => {
+			} else if (indirectObject[0]?.character) {
+				filterAction = filterAction.filter((a) => {
 					return a.class === "PERSON";
 				});
-			} else if (filterIndirect?.scene) {
-				filterAction = action.filter((a) => {
+			} else if (indirectObject[0]?.scene) {
+				filterAction = filterAction.filter((a) => {
 					return a.class === "MOVEMENT";
 				})
 			}
 		}
 
-		//IF ONE ACTION FOUND RETURN
-		if (filterAction.length === 1) {
-			filterAction[0].originalAction = commandArr[0];
-			filterAction[0].preposition = prepArr;
-			filterAction[0].inPreposition = indirectPrepArr;
-			return {
-				action: filterAction[0],
-				object: object,
-				indirectObject: (indirectObject) ? indirectObject[0] : undefined
-			}
-		} else {
-			return false;
-		}
-	} else if (action.length === 1 && (object && object.length > 1)) {//IF ON ACTION BUT MULTIPLE OBJECTS
+		action = filterAction;
+	}
+
+	if (action.length === 1 && (object && object.length > 1)) {//IF ONE ACTION BUT MULTIPLE OBJECTS
 		//TRY AND FIND OBJECT BY ACTION TYPE
-		action = action[0];
-		if (action.class === "MOVEMENT") {
+		if (action[0].class === "MOVEMENT") {
 			filterObject = object.filter((o) => {
 				return o.scene === 1
 			});
-		} else if (action.class === "ITEM") {
+		} else if (action[0].class === "ITEM") {
 			filterObject = object.filter((o) => {
 				return o.item === 1;
 			});
-		} else if (action.class === "DOOR") {
+		} else if (action[0].class === "DOOR") {
 			filterObject = object.filter((o) => {
 				return o.door === 1;
 			});
-		} else if (action.class === "CHARACTER") {
+		} else if (action[0].class === "CHARACTER") {
 			filterObject = object.filter((o) => {
 				return o.character === 1;
 			});
 		}
 
-		if (filterObject.length > 1 && action.inclusive !== 1) {
+		if (filterObject.length > 1 && action[0].inclusive !== 1) {
 			filterObject = object.filter((o) => {
 				const owner = getOwner(o);
 				if (o.scene === player.scene || owner?.name === "PLAYER" || (owner && owner?.scene === player.scene)) {
@@ -345,18 +366,80 @@ async function parseCommand(command) {
 			});
 		}
 
-		if (filterObject.length === 1) {
-			action.originalAction = commandArr[0];
-			action.preposition = prepArr;
-			action.inPreposition = indirectPrepArr;
-			return {
-				action: action,
-				object: filterObject[0],
-				indirectObject: (indirectObject) ? indirectObject[0] : undefined
-			}
+		object = filterObject;
+	}
+
+	if (action.length === 1 && (indirectObject && indirectObject.length > 1)) {//IF ONE ACTION BUT MULTIPLE INDIRECT OBJECTS
+		if (action[0].inclusive !== 1) {
+			filterObject = indirectObject.filter((o) => {
+				const owner = getOwner(o);
+				if (o.scene === player.scene || owner?.name === "PLAYER" || (owner && owner?.scene === player.scene)) {
+					return true;
+				} else if (o?.paths) {
+					const doorScene = o.paths.filter((p) => {
+						return p.scene === player.scene;
+					})[0];
+					if (doorScene) {
+						return true;
+					} else {
+						return false;
+					}
+				} else {
+					return false;
+				}
+			});
+		}
+		indirectObject = filterIndirect;
+	}
+
+	if (action.length === 1 && (!object || object.length <= 1) && (!indirectObject || indirectObject.length <= 1)) {
+		action[0].originalAction = commandArr[0];
+		action[0].preposition = prepArr;
+		action[0].inPreposition = indirectPrepArr;
+		return {
+			action: action[0],
+			object: (object) ? object[0] : undefined,
+			indirectObject: (indirectObject) ? indirectObject[0] : undefined
 		}
 	} else {
-		return false;
+		if (object && object.length > 1) {
+			let resp = "DID YOU MEAN ";
+			for (let i = 0; i < object.length; i++) {
+				const objName = addThe(object[i]);
+				if (i === 0) {
+					resp += objName;
+				} else if (i === object.length - 1) {
+					resp += ", OR " + objName;
+				} else {
+					resp += ", " + objName;
+				}
+			}
+			resp += "?";
+			return {
+				response: [resp],
+				setCommand: commandArr[0] + " " + ((prepArr && prepArr.length > 0) ? prepArr[0] + " " : ""),
+				no_event: 1
+			}
+		} else if (action && action.length > 1) {
+			let resp = "DID YOU WANT TO ";
+			for (let i = 0; i < action.length; i++) {
+				const objName = addThe(object[0]);
+				if (i === 0) {
+					resp += action[i].action + ((object) ? " " + objName : "");
+				} else if (i === action.length - 1) {
+					resp += ", OR " + action[i].action + ((object) ? " " + objName : "");
+				} else {
+					resp += ", " + action[i].action + ((object) ? " " + objName : "");
+				}
+			}
+			resp += "?";
+			return {
+				response: [resp],
+				no_event: 1
+			}
+		} else {
+			return false;
+		}
 	}
 }
 
@@ -740,19 +823,6 @@ async function getObject(obj, command) {
 	return foundItems;
 }
 
-/*
-//GET ALL OBJECTS BY NAME AND ALIAS FROM PLAYER INPUT
-async function getObject(objectCheck) {
-	const objectNoThe = removeThe(objectCheck);
-	let itemCheck;
-	let doorCheck;
-	let personCheck;
-
-	//LOOP THROUGH THIS TO GET MULTIPLE OBJECTS AT ONCE
-	const separators = [', AND ', ' AND ', ', ',];
-	const numbers = objectNoThe.split(new RegExp(separators.join('|'), ''));
-*/
-
 async function setEncountered() {
 	const resp = [];
 	const error = [];
@@ -772,7 +842,7 @@ async function setEncountered() {
 					let subCheck = itOwner;
 					while (subCheck.subordinate) {
 						if (subCheck.container) {
-							if (subCheck.transparent !== 1 && subCheck.container !== "O" && subCheck.container !== "E") {
+							if (subCheck.light_transmission !== "T" && subCheck.container !== "O" && subCheck.container !== "E") {
 								return false;
 							} else if (subCheck.container === "O" && subCheck.open !== 1) {
 								return false;

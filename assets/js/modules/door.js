@@ -201,7 +201,13 @@ async function lockDoor(command) {
 
     if (object.scene === player.scene || paths) {
         //IF NO KEY REQUIRED OR DOOR IS OPEN AND ONE SIDE REQUIRES NO KEY
-        if (noKey || (door.open === 1 && (firstNoKey === 1 || secondNoKey === 1))) {
+        if (noLock) {
+            respArr.push((noLockMsg) ? noLockMsg : "THE DOOR CANNOT BE " + action.originalAction + "ED FROM THIS SIDE.");
+            return {
+                response: respArr,
+                noMovement: 1
+            }
+        } else if (noKey || (door.open === 1 && (firstNoKey === 1 || secondNoKey === 1))) {
             let newDoor;
             if (key) {
                 if (door.open) {
@@ -225,12 +231,6 @@ async function lockDoor(command) {
                 return newDoor;
             } else {
                 return { response: respArr };
-            }
-        } else if (noLock) {
-            respArr.push((noLockMsg) ? noLockMsg : "THE DOOR CANNOT BE " + action.originalAction + "ED FROM THIS SIDE.");
-            return {
-                response: respArr,
-                noMovement: 1
             }
         } else if (action.originalAction === "LOCK" && door.locked === 1) {
             respArr.push("THE DOOR IS ALREADY LOCKED.");

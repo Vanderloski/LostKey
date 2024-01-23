@@ -18,23 +18,9 @@
             "locked": 1
         },
         {
-            "name": "CSTANDD",
-            "title": "CONCESSION STAND DOOR",
-            "description": "A DOOR",
-            "scene": "CSTAND",
-            "no_lock": 1,
-            "paths": [
-                {
-                    "scene": "DITL",
-                    "no_lock": 1
-                }
-            ]
-        },
-        {
             "name": "PROJECTION BOOTH DOOR",
             "scene": "PB",
             "description": "A GRAY METAL DOOR WITH SOME NAUGHTY PIN-UPS TAPED TO IT.",
-            "lock_without_key": 1,
             "paths": [
                 {
                     "scene": "CSTAND",

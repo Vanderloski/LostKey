@@ -8,8 +8,14 @@
             "responses": ["\"LET'S GO OUTSIDE AND SEE THAT NEW CAR YOU'VE BEEN HANKERING ON ABOUT.\"", "\"HELLO, HANDSOME!\""],
             "help": ["\"LET'S GO OUTSIDE AND SEE THAT NEW CAR YOU'VE BEEN HANKERING ON ABOUT.\""],
             "alias": ["GIRLFRIEND"],
-            "encountered": 0,
-            "affinity": "F"
+            "affinity": "F",
+            "follow": "PLAYER"
+        },
+        {
+            "name": "JIM",
+            "image": "",
+            "description": "OL' JIM",
+            "scene": "CSTAND"
         },
         {
             "name": "EUSTACE",

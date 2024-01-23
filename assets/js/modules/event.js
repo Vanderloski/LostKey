@@ -16,153 +16,77 @@ export const event = async (command, before) => {
             }
 
             if (e.cause) {
-                testPass = true;
                 const cause = e.cause;
 
                 if (e.action && !e.action.includes(action?.action)) {
                     return false;
                 } else {
-                    //LOOP THROUGH ALL CAUSE OBJECTS
-                    for (let x = 0, keys = Object.keys(cause); x < keys.length; x++) {
-                        //IF PLAYER
-                        if (keys[x] === "player") {
-                            const value = cause[keys[x]];
-                            for (let y = 0, conditions = Object.keys(cause[keys[x]]); y < conditions.length; y++) {
-                                if (conditions[y] && player[conditions[y]] !== value[conditions[y]]) {
+                    //LOOP THROUGH ALL CAUSE OBJECT REQUIREMENTS
+                    for (let x = 0, evtReqs = Object.keys(cause); x < evtReqs.length; x++) {
+                        //IF PLAYER REQUIREMENT
+                        if (evtReqs[x] === "player") {
+                            const causeObj = cause[evtReqs[x]];
+                            for (let y = 0, conditions = Object.keys(causeObj); y < conditions.length; y++) {
+                                if (conditions[y] && player[conditions[y]] !== causeObj[conditions[y]]) {
                                     testPass = false;
                                 }
                             }
-                        } else if ((keys[x] === "object" && object) || (keys[x] === "indirect_object" && indirect)) {//IF OBJECT
-                            let testFilter;
-                            const curObject = (keys[x] === "indirect_object") ? indirect : object;
-                            for (let y = 0, conditions = Object.keys(cause[keys[x]]); y < conditions.length; y++) {
-                                const testObject = (curObject.item) ? items : (curObject.character) ? characters : (curObject.door) ? doors : "";
-                                if (!testObject) {
-                                    testPass = false;
-                                } else {
-                                    const value = cause[keys[x]];
-                                    testFilter = testObject.filter((t) => {
-                                        if (t.name === value.name) {
-                                            const owner = getOwner(t);
-                                            if (value?.scene) {
-                                                if (value?.scene === "PLAYER") {
-                                                    if (owner && owner?.scene !== player.scene && t.owner !== "PLAYER") {
-                                                        console.log('1');
-                                                        testPass = false;
-                                                    } else if (t.scene !== player.scene && t.owner !== "PLAYER") {
-                                                        testPass = false;
-                                                    } else {
-                                                        return true;
-                                                    }
-                                                } else {
-                                                    let secondObject = scenes.filter((s) => {
-                                                        return s.name === value?.scene;
-                                                    })[0];
-                                                    if (!secondObject) {
-                                                        secondObject = items.filter((it) => {
-                                                            return it.name === value?.scene;
-                                                        })[0];
-                                                        if (!secondObject) {
-                                                            secondObject = characters.filter((c) => {
-                                                                return c.name === value?.scene;
-                                                            })[0];
-                                                        }
-                                                        const checkOwner = getOwner(secondObject);
-
-                                                        if (checkOwner && checkOwner?.name !== "PLAYER" && checkOwner?.scene !== player.scene) {
-                                                            testPass = false;
-                                                        } else if (owner && owner?.scene !== secondObject.scene && owner?.scene !== checkOwner?.scene) {
-                                                            testPass = false;
-                                                        } else if (t.scene !== secondObject.scene && t.scene !== checkOwner?.scene) {
-                                                            testPass = false;
-                                                        } else {
-                                                            return true;
-                                                        }
-                                                    } else {
-                                                        if (t.scene !== secondObject.name) {
-                                                            testPass = false;
-                                                        } else {
-                                                            return true;
-                                                        }
-                                                    }
-                                                }
-                                            } else if (conditions[y] && t[conditions[y]] !== value[conditions[y]]) { //IF OBJECT ATTRIBUTE EQUALS EVENT ATTRIBUTE
-                                                testPass = false;
-                                            } else {
-                                                return true;
-                                            }
-                                        }
-                                    })[0];
-                                }
-                            }
-                            if (!testFilter) {
-                                testPass = false
-                            }
-                        } else if (cause[keys[x]] && cause[keys[x]].length > 0) {//IF OBJECT EXISTS
-                            let testFilter;
-                            //SET OBJECT TO TEST
-                            const testObject = (keys[x] === "items") ? items : (keys[x] === "characters") ? characters : (keys[x] === "doors") ? doors : "";
-                            if (!testObject) {
+                        } else {
+                            //IF OBJECT CHECK BUT NO OBJECT
+                            if (evtReqs[x] === "object" && (!object || object.length === 0)) {
+                                testPass = false;
+                            } else if (evtReqs[x] === "indirect_object" && (!indirect || indirect.length === 0)) {//IF INDIRECT OBJECT CHECK BUT NO INDIRECT
+                                testPass = false;
+                            } else if (evtReqs[x] === "object" && object.name !== cause[evtReqs[x]].name) {
+                                testPass = false;
+                            } else if (evtReqs[x] === "indirect_object" && indirect.name !== cause[evtReqs[x]].name) {
                                 testPass = false;
                             } else {
-                                for (let y = 0; y < cause[keys[x]].length; y++) {
-                                    for (let z = 0, conditions = Object.keys(cause[keys[x]][y]); z < conditions.length; z++) {
-                                        testFilter = testObject.filter((t) => {
-                                            const value = cause[keys[x]][y];
-                                            if (t.name === value.name) {
-                                                //GET OWNERS FOR ITEMS
-                                                const owner = getOwner(t);
-                                                if (value?.scene) {
-                                                    if (value?.scene === "PLAYER") { //IF SCENE SAME AS PLAYER SCENE
-                                                        if (owner && owner?.scene !== player.scene && t.owner !== "PLAYER") {
-                                                            testPass = false;
-                                                        } else if (t.scene !== player.scene && t.owner !== "PLAYER") {
-                                                            testPass = false;
-                                                        } else {
-                                                            return true;
-                                                        }
-                                                    } else {
-                                                        let secondObject = scenes.filter((s) => {
-                                                            return s.name === value?.scene;
-                                                        })[0];
-                                                        if (!secondObject) {
-                                                            secondObject = items.filter((it) => {
-                                                                return it.name === value?.scene;
-                                                            })[0];
-                                                            if (!secondObject) {
-                                                                secondObject = characters.filter((c) => {
-                                                                    return c.name === value?.scene;
-                                                                })[0];
-                                                            }
-                                                            const checkOwner = getOwner(secondObject);
+                                const causeArr = (evtReqs[x] === "object" || evtReqs[x] === "indirect_object") ? [cause[evtReqs[x]]] : cause[evtReqs[x]];
 
-                                                            if (checkOwner && checkOwner?.name !== "PLAYER" && checkOwner?.scene !== player.scene) {
-                                                                testPass = false;
-                                                            } else if (owner && owner?.scene !== secondObject.scene && owner?.scene !== checkOwner?.scene) {
-                                                                testPass = false;
-                                                            } else if (t.scene !== secondObject.scene && t.scene !== checkOwner?.scene) {
-                                                                testPass = false;
-                                                            } else {
-                                                                return true;
-                                                            }
-                                                        } else {
-                                                            if (t.scene !== secondObject.name) {
-                                                                testPass = false;
-                                                            } else {
-                                                                return true;
-                                                            }
-                                                        }
-                                                    }
-                                                } else if (t[conditions[z]] !== value[conditions[z]]) { //IF OBJECT ATTRIBUTE EQUALS EVENT ATTRIBUTE
-                                                    testPass = false;
-                                                } else {
-                                                    return true;
-                                                }
-                                            }
+                                for (let y = 0; y < causeArr.length; y++) {
+                                    //SET OBJECT TO TEST
+                                    let testObject = (evtReqs[x] === "items") ? items : (evtReqs[x] === "characters") ? characters : (evtReqs[x] === "doors") ? doors : "";
+                                    if (evtReqs[x] === "object" || evtReqs[x] === "indirect_object") {
+                                        testObject = (evtReqs[x] === "indirect_object") ? indirect : object;
+                                    } else {
+                                        testObject = testObject.filter((t) => {
+                                            return causeArr[y].name === t.name;
                                         })[0];
                                     }
-                                    if (!testFilter) {
+                                    const owner = getOwner(testObject);
+                                    if (action?.inclusive !== 1 && testObject.encountered !== 1) {
                                         testPass = false;
+                                    } else if (action?.inclusive !== 1 && testObject.scene !== player.scene && testObject.owner !== "PLAYER" && owner?.scene !== player.scene) {
+                                        testPass = false;
+                                    } else {
+                                        for (let z = 0, conditions = Object.keys(causeArr[y]); z < conditions.length; z++) {
+                                            if (conditions[z] !== "name") {
+                                                //CHECK FOR NOT EQUALS
+                                                if (conditions[z].slice(-4) === '_neq') {
+                                                    const condition = conditions[z].slice(0, -4);
+                                                    if (condition === "scene") {
+                                                        if (causeArr[y][conditions[z]] === "PLAYER" && (testObject[condition] === player.scene || testObject.owner === "PLAYER" || owner?.scene === player.scene)) {
+                                                            testPass = false;
+                                                        } else if (causeArr[y][conditions[z]] !== "PLAYER" && causeArr[y][conditions[z]] === testObject[condition]) {
+                                                            testPass = false;
+                                                        }
+                                                    } else if (causeArr[y][conditions[z]] === testObject[condition]) {
+                                                        testPass = false;
+                                                    }
+                                                } else {
+                                                    if (conditions[z] === "scene") {
+                                                        if (causeArr[y][conditions[z]] === "PLAYER" && testObject[conditions[z]] !== player.scene && testObject.owner !== "PLAYER" && owner?.scene !== player.scene) {
+                                                            testPass = false;
+                                                        } else if (causeArr[y][conditions[z]] !== "PLAYER" && causeArr[y][conditions[z]] !== testObject[conditions[z]]) {
+                                                            testPass = false;
+                                                        }
+                                                    } else if (causeArr[y][conditions[z]] !== testObject[conditions[z]]) {
+                                                        testPass = false;
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -177,12 +101,20 @@ export const event = async (command, before) => {
             }
         } else {
             return false;
-        };
+        }
     });
 
     if (eventsCheck && eventsCheck.length > 0) {
         for (let i = 0; i < eventsCheck.length; i++) {
-            const effect = eventsCheck[i].effect;
+            let effect = eventsCheck[i].effect;
+            //IF SAME AS EFFECT
+            if (effect.same_as) {
+                //GET EVENT
+                const sameAsEvt = events.filter((e) => {
+                    return e.name === effect.same_as;
+                })[0];
+                effect = sameAsEvt.effect;
+            }
             for (let x = 0, keys = Object.keys(effect); x < keys.length; x++) {
                 if (keys[x] !== "response" && keys[x] !== "score" && keys[x] !== "fx") {
                     if (effect[keys[x]] && effect[keys[x]].length > 0) {
@@ -239,21 +171,21 @@ export const event = async (command, before) => {
                     }
                 }
             }
-            if (eventsCheck[i]?.effect?.response) {
-                respArr.push(eventsCheck[i]?.effect?.response);
+            if (effect?.response) {
+                respArr.push(effect?.response);
             }
             if (eventsCheck[i].event_only === 1) {
                 event_only = 1;
             }
-            if (eventsCheck[i]?.effect?.score > 0) {
-                player.score = player.score + eventsCheck[i].effect.score;
+            if (effect?.score > 0) {
+                player.score = player.score + effect.score;
                 const evtUpdate = await IDB.setValue('player', player.score, 'score').catch(() => { return { error: "EVENT_SCORE_IDB_ERROR" } });
                 if (evtUpdate?.error) {
                     return evtUpdate;
                 }
             }
-            if (eventsCheck[i]?.effect?.fx) {
-                fx = eventsCheck[i]?.effect?.fx;
+            if (effect?.fx) {
+                fx = effect?.fx;
             }
             if (eventsCheck[i].repeatable !== 1) {
                 eventsCheck[i].active = 0;

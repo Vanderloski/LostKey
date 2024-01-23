@@ -108,6 +108,23 @@
                 },
                 {
                     "direction": "N",
+                    "scene": "BPB"
+                }
+            ]
+        },
+        {
+            "name": "BPB",
+            "title": "DRIVE-IN THEATER - BEHIND THE PROJECTION BOOTH",
+            "alias": ["BEHIND THE PROJECTION BOOTH"],
+            "introduction": "LIGHT FROM THE ROOM BEHIND YOU LIGHTS THE SMALL AREA IN FRONT OF YOU. WOODS CIRCLE THE AREA IN FRONT OF YOU AND YOU CAN BARELY MAKE OUT THE START OF A PATH THROUGH THE TREES TO THE NORTH. YOU GAZE THROUGH THE WOODS TO FIND ANY SIGN OF JIM BUT IT'S TOO DARK TO MAKE ANYTHING OUT. TO THE RIGHT OF YOU SITS A WOODEN BENCH WITH A SQUIRREL ON TOP.",
+            "description": "A SMALL CLEARED OUT AREA BEHIND THE PROJECTION BOOTH. A PATH THROUGH THE WOODS CAN BE SEEN TO THE NORTH",
+            "exits": [
+                {
+                    "direction": "S",
+                    "scene": "PB"
+                },
+                {
+                    "direction": "N",
                     "scene": "FMAZES"
                 }
             ]
@@ -116,7 +133,8 @@
             "name": "FMAZES",
             "title": "FOREST MAZE",
             "alias": ["FOREST"],
-            "description": "THE SMALL AMOUNT OF LIGHT JUTTING OUT FROM THE PROJECTION BOOTH IS JUST ENOUGH TO SEE. YOU ARE STANDING JUST ON THE OTHERSIDE OF THE TREE LINE ON A SMALL DIRT PATH. THE DIRT PATH SPLITS INTO THREE DIRECTIONS AHEAD OF YOU. ONE TO THE ^^^EAST, ONE TO THE ^^^NORTH AND ONE TO THE ^^^WEST. YOU'RE PRETTY SURE YOU'RE GOING TO NEED SOME ADDITIONAL LIGHT IF YOU WANT TO VENTURE ANY FURTHER. THE ^^^PB LIES BEHIND YOU TO THE ^^^SOUTH.",
+            "description": "YOU ARE STANDING JUST ON THE OTHERSIDE OF THE TREE LINE ON A SMALL DIRT PATH. THE DIRT PATH SPLITS INTO THREE DIRECTIONS AHEAD OF YOU. ONE TO THE ^^^EAST, ONE TO THE ^^^NORTH AND ONE TO THE ^^^WEST. YOU'RE PRETTY SURE YOU'RE GOING TO NEED SOME ADDITIONAL LIGHT IF YOU WANT TO VENTURE ANY FURTHER. THE ^^^PB LIES BEHIND YOU TO THE ^^^SOUTH.",
+            "visibility": "DARK",
             "exits": [
                 {
                     "direction": "E",
@@ -132,7 +150,7 @@
                 },
                 {
                     "direction": "S",
-                    "scene": "PB"
+                    "scene": "BPB"
                 }
             ]
         },
@@ -147,7 +165,7 @@
                     "scene": "FMAZES"
                 }
             ],
-            "light": "DARK"
+            "visibility": "DARK"
         },
         {
             "name": "FMAZEW",
@@ -160,7 +178,7 @@
                     "scene": "FMAZES"
                 }
             ],
-            "light": "DARK"
+            "visibility": "DARK"
         },
         {
             "name": "FSAUCER",
@@ -168,7 +186,7 @@
             "alias": ["TRAIL", "SAUCER", "SPACESHIP", "FLYING SAUCER", "CLEARING", "FOREST CLEARING"],
             "introduction": "AS YOU CONTINUE NORTH YOU NOTICE A GREEN LIGHT PULSATING IN THE DISTANCE. AS YOU APPROACH YOU SEE A GIANT METALLIC OBJECT SITTING IN THE MIDDLE OF AN OPEN CLEARING IN THE WOODS. IT'S DESIGN IS UNLIKE ANYTHING YOU'VE EVER SEEN BEFORE, AND THE MATERIAL IT'S MADE OUT OF SHINES IN A WAY THAT IS NEW TO YOU. YOU AND BETTY CREEP UP TO THE EDGE OF THE CLEARING BUT TRY TO NOT BE SEEN BY STAYING BEHIND SOME TREES. AS YOU CROUCH DOWN, BETTY LETS OUT A SMALL GASP AND BEFORE YOU CAN ASK HER WHAT'S WRONG YOU SEE THE REASON FOR HER SUPRISE. THREE BIPEDAL CREATURES EMERGE FROM A RAMP AT THE BOTTOM OF THE CRAFT. THEY BEGIN TO CONVERSE WITH EACH OTHER, THEIR SPEECH IS HARSH AND DISPLEASING TO THE EARS. YOU BEGIN TO REALIZE THAT YOU ARE OBSERVING ALIENS FROM ANOTHER PLANET. SUDDENLY, A DOG BEGINS TO BARK FROM THE RIGHT OF THE CLEARING. THE ALIEN CREATURES IMMEDIATELY TURN TO THE DOG AND FIRE SOME KIND OF WEAPON THAT CREATES A RED LINE THAT CATCHES THE DOG BY THE HIND QUARTERS. SCARED AND HURT THE DOG TURNS TAIL AND RUNS AS ITS YIPS DISAPPEAR INTO THE DISTANCE. BETTY GRABS YOUR ARM, \"WE NEED TO GO BACK AND TELL SOMEBODY WHAT'S GOING ON HERE.\"",
             "description": "A LARGE METALLIC ALIEN SHIP SITS IN A CLEARING AND THREE OF IT'S OCCUPANTS STAND BENEATH IT. YOU'RE NOT SURE, BUT THEY SEEM TO BE ARGUING.",
-            "light": "DARK",
+            "visibility": "DARK",
             "exits": [
                 {
                     "direction": "S",

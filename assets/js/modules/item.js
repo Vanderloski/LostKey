@@ -9,8 +9,6 @@ export const item = async (command) => {
 			return await giveItemCharacter(command);
 		} else if (command.action?.type === "GIVEITEM") {
 			return await giveItem(command);
-		} else if (command.action?.type === "ENTEREXIT") {
-			return await enterExit(command);
 		} else if (command.action?.type === "OPENCLOSEITEM") {
 			return await openCloseItem(command);
 		} else if (command.action?.type === "ACTIVATEITEM") {
@@ -56,15 +54,27 @@ async function getDropItem(command) {
 		};
 	}
 
+	//CHECK CURRENT SCENE VISIBILITY
+	const curScene = scenes.filter((s) => {
+		return s.name === player.scene;
+	})[0];
+	//CHECK SCENE LIGHT
+	const isLight = sceneLight(curScene);
+	if (!isLight) {
+		return {
+			response: ["IT'S TOO DARK TO DO THAT."],
+			noMovement: 1
+		}
+	}
+
 	//GET OWNER IF EXISTS
 	const owner = getOwner(object);
-
 	if (action.type === "GETITEM" && object.owner === "PLAYER") { //CHECK IF GETTING ENCOUNTERED ITEM ALREADY IN INVENTORY
 		return {
 			response: ["YOU'RE ALREADY CARRYING THAT."],
 			noMovement: 1
 		};
-	} else if (action.type === "DROPITEM" && object.owner !== "PLAYER" && owner.name !== "PLAYER") { //CHECK IF DROPPING ENCOUNTERED ITEM NOT IN INVENTORY
+	} else if (action.type === "DROPITEM" && object.owner !== "PLAYER" && owner?.name !== "PLAYER") { //CHECK IF DROPPING ENCOUNTERED ITEM NOT IN INVENTORY
 		return {
 			response: ["YOU ARE NOT CURRENTLY CARRYING THAT."],
 			noMovement: 1
@@ -83,12 +93,12 @@ async function getDropItem(command) {
 			} else if (owner.item || owner.name === "PLAYER" || object.ownerType !== "CHARACTER") {
 				let subCheck = (owner.name === "PLAYER" || owner.character) ? owner.subordinate : owner;
 				while (subCheck.subordinate) {
-					if (subCheck.container !== "O" && subCheck.container !== "E") {
+					if (subCheck.container === "S" && subCheck.name !== player.owner) {
 						subMsg.push(addThe(subCheck) + " CANNOT BE OPENED.");
 						return {
 							response: subMsg
 						}
-					} else if (subCheck.container === "O" && subCheck.open !== 1) {
+					} else if ((subCheck.container === "O" || subCheck.container === "V") && subCheck.open !== 1 && subCheck.name !== player.owner) {
 						subMsg.push("///YOU_OPEN_" + addThe(subCheck) + ".");
 						const itemToUpdate = items.filter((it) => {
 							return it.name === subCheck.name;
@@ -149,6 +159,12 @@ async function getDropItem(command) {
 						itemMsg = itemToMove.taken_message;
 					}
 				}
+			}
+
+			if (action.type === "DROPITEM" && player.owner) {
+				itemToMove.scene = "";
+				itemToMove.owner = player.owner;
+				itemToMove.ownerType = "ITEM";
 			}
 
 			const itemUpdate = await IDB.setValue('items', itemToMove).catch(() => { return { error: "GETDROPITEM_UPDATE_IDB_ERROR" }; });
@@ -313,8 +329,9 @@ async function giveItem(command) {
 			return ito.name === indirect.name;
 		})[0];
 		curItem.owner = indirect.name;
+		curItem.ownerType = "ITEM";
 		curItem.scene = "";
-		if (indirect.open !== 1) {
+		if (indirect.open !== 1 && indirect.container !== "E") {
 			curOwner.open = 1;
 			respArr.push("///YOU_OPEN_" + addThe(curOwner) + ".");
 			const itemOwnerUpdate = IDB.setValue('items', curOwner).catch(() => { return { error: "GIVEITEM_OWNER_UPDATE_ERROR"}; }); 
@@ -334,66 +351,6 @@ async function giveItem(command) {
 	}
 }
 
-async function enterExit(command) {
-	const action = command?.action;
-	const object = command?.object;
-	const rspMsg = [];
-
-	if (!object) {
-		return {
-			response: ["WHAT WOULD YOU LIKE TO " + action.originalAction + "?"],
-			noMovement: 1
-		};
-	}
-
-	if (object.scene !== player.scene) {
-		return {
-			response: ["YOU CANNOT CURRENTLY SEE THAT."],
-			noMovement: 1
-		}
-	} else if (action.originalAction === "ENTER" && object.name === player.owner) {
-		return {
-			response: ["YOU ARE ALREADY INSIDE " + addThe(object) + "."],
-			noMovement: 1
-		}
-	} else if (action.originalAction !== "ENTER" && !player.owner) {
-		return {
-			response: ["YOU ARE ALREADY OUTSIDE " + addThe(object) + "."],
-			noMovement: 1
-		}
-	} else if (action.originalAction !== "ENTER" && player.owner !== object.name) {
-		return {
-			response: ["YOU ARE NOT CURRENTLY INSIDE " + addThe(object) + "."],
-			noMovement: 1
-		}
-	} else if (object.container !== "V" && object.container_allow_player !== 1) {
-		return {
-			response: ["YOU CANNOT " + action.originalAction + " THAT."],
-			noMovement: 1
-		}
-	} else {
-		if (action.originalAction === "ENTER") {
-			if (player.owner) {
-				const curOwner = items.filter((it) => {
-					return it.name === player.owner;
-				})[0];
-				rspMsg.push("YOU EXIT " + addThe(curOwner) + ".");
-			}
-			player.owner = object.name;
-		} else {
-			player.owner = "";
-		}
-
-		const newOwner = await IDB.setValue('player', player.owner, 'owner').catch(() => { return { error: "ENTEREXIT_OWNER_IDB_ERROR" }; });
-		if (newOwner?.error) {
-			return newOwner;
-		}
-
-		rspMsg.push("YOU " + action.originalAction + " " + addThe(object) + ".");
-		return { response: rspMsg };
-	}
-}
-
 async function openCloseItem(command) {
 	const action = command?.action;
 	const object = command?.object;
@@ -409,7 +366,7 @@ async function openCloseItem(command) {
 	const owner = getOwner(object);
 	//IF CURRENT SCENE OR PLAYER INVENTORY
 	if (object.scene === player.scene || owner?.name === "PLAYER") {
-		if (object.container !== "O") {
+		if (object.container !== "O" && object.container !== "V") {
 			return {
 				response: ["THAT ISN'T POSSIBLE."],
 				noMovement: 1

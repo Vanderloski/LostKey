@@ -186,3 +186,27 @@ function getOwner(subordinate) {
         }
     }
 }
+
+//CHECK FOR CURRENT SCENE HERE AND IF NEW SCENE IS PASSED USE THAT FOR ADDITIONAL CHECKS
+function sceneLight(sceneVis) {
+    //CHECK NEW SCENE VISIBILITY
+	const light = items.filter((it) => {
+		return it.light_source === 1 && it.on === 1;
+	})[0];
+    const owner = getOwner(light);
+    if (sceneVis?.visibility === "DARK") {
+        if (!light) {
+            return false;
+        } else {
+            if (owner && owner?.scene !== player.scene) {
+                return false;
+            } else if (light.scene !== player.scene) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    } else {
+        return true;
+    }
+}

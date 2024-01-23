@@ -71,13 +71,14 @@
             "name": "THUNDERBIRD",
             "image": "🚗",
             "description": "A BRAND NEW 1955 FORD THUNDERBIRD IN A GORGEOUS TORCH RED WITH THE FIBERGLASS ROOF CURRENTLY OFF AND SAFELY STORED IN YOUR GARAGE. EQUIPPED WITH THE 292 Y-BLOCK V8 MATED TO A 3-SPEED FORDOMATIC TRANSMISSION THAT'S CAPABLE OF REACHING... OH, SORRY, GOT CARRIED AWAY. WHY DON'T WE CONTINUE ON WITH THE STORY.",
+            "interior": "THE INTERIOR OF THE T-BIRD.",
             "scene": "BHST",
             "encountered": 0,
             "unobtainable": 1,
             "unobtainable_message": "SHE'S DEFINITELY SMALL BY TODAY'S STANDARDS, BUT SHE'S NOT THAT SMALL.",
-            "interior_message": "THE INTERIOR OF THE T-BIRD.",
             "alias": ["TBIRD", "T-BIRD", "CAR", "VEHICLE", "AUTO", "AUTOMOBILE", "FORD", "FORD THUNDERBIRD", "RED CAR", "RED VEHICLE", "RED AUTO", "RED AUTOMOBILE", "RED FORD", "RED FORD THUNDERBIRD", "RED TBIRD", "RED T-BIRD", "RED THUNDERBIRD", "CONVERTIBLE", "RED CONVERTIBLE"],
-            "container": "V"
+            "container": "V",
+            "light_transmission": "T"
         },
         {
             "name": "POPCORN",
@@ -94,19 +95,18 @@
             "name": "FLASHLIGHT",
             "image": "🔦",
             "description": "REALLY BRIGHT FLASHLIGHT.",
-            "scene": "BHFP",
+            "scene": "PB",
             "taken_message": "YOU GRAB THE |||FLASHLIGHT AND FLIP THE SWITCH. A BRIGHT YELLOW BEAM OF FLUORESCENT LIGHT MAKES A CIRCLE ON THE WALL IN FRONT OF YOU. LUCKY FOR YOU IT SEEMS TO HAVE BRAND NEW BATTERIES. YOU SWITCH IT OFF AND PLACE IT IN YOUR POCKET.",
             "alias": ["TORCH"],
-            "emittable": 1,
+            "light_source": 1,
             "activate": 1,
-            "container": "O",
             "on": 0 
         },
         {
             "name": "BATTERIES",
             "image": "🔋",
             "description": "TWO LARGE C BATTERIES. SHOULD BE MORE THAN ENOUGH TO POWER THE FLASHLIGHT.",
-            "scene": "BHFP"
+            "scene": "BPB"
         },
         {
             "name": "BGLOVES",
@@ -125,7 +125,14 @@
             "name": "CKEY",
             "title": "CAR KEY",
             "owner": "PLAYER",
-            "encountered": 1
+            "encountered": 1,
+            "alias": ["KEY"]
+        },
+        {
+            "name": "HOUSE KEY",
+            "scene": "BHFP",
+            "encountered": 1,
+            "alias": ["KEY"]
         }
     ]
 }
