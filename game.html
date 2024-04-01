@@ -19,14 +19,14 @@
 			<p id="titleTag" class="textStyle"></p>
 			<h2 id="titleHeader" class="textStyle"></h2>
 			<p id="titleAuthor" class="textStyle"></p>
-			<p id="titleStart" class="textStyle">PRESS ANY KEY OR CLICK TO START</p>
+			<p id="titleStart" class="textStyle TEXTBLINK">PRESS ANY KEY OR CLICK TO START</p>
 		</div>
 	</div>
 	<div id="loading">
 		<p id="loadingPara" class="textStyle">LOADING</p>
 	</div>
 	<div id="wrapper">
-		<div id="banner">
+		<div id="banner" class="backgroundStyle">
 			<div id="bannerWidth">
 				<div class="bannerSection textStyle" id="moveCounter">
 					<h4></h4>
@@ -40,12 +40,12 @@
 			</div>
 		</div> <!-- banner -->
 		<div id="contentWrapper">
-			<div id="storybook">
+			<div id="storybook" class="scrollbarStyle">
 			</div> <!-- storybook -->
 			<div id="sidebar">
 				<div id="inventory">
 					<h6 class="textStyle">INVENTORY</h6>
-					<div id="inventoryListDIV">
+					<div id="inventoryListDIV" class="scrollbarStyle">
 						<ul id="inventoryList"></ul>
 					</div>
 				</div> <!-- inventory -->
@@ -53,11 +53,30 @@
 		</div> <!-- contentWrapper -->
 		<div id="cmd">
 			<div id="cmdWidth">
-				<p id="command" class="textStyle">&gt;<span id="commandDisplay"></span><span id="cursor"></span></p>
+				<p id="command" class="textStyle">&gt;<span id="commandDisplay"></span><span id="cursor" class="backgroundStyle"></span></p>
 				<input id="commandInput" name="commandInput" type="text" />
 			</div>
 		</div> <!-- cmd -->
 	</div> <!-- wrapper -->
+	<div id="endScreen">
+		<div id="contentWrapper_end">
+			<div id="storybook_end" class="scrollbarStyle"></div>
+			<div id="creditsWrapper">
+				<div id="creditsButtons">
+					<div id="creditsButtons_Left">
+						<p id="creditsButtons_Left_Button" class="creditsButtons_para textStyle">Replay Ending</p>
+					</div>
+					<div id="creditsButtons_Right">
+						<p id="creditsButtons_Right_Button" class="creditsButtons_para textStyle">New Game</p>
+					</div>
+				</div>
+				<div id="credits">
+					<h2 id="creditsHeader" class="textStyle"></h2>
+				</div>
+			</div> <!-- creditsWrapper-->
+		</div> <!-- contentWrapper_end -->
+		</div> <!-- storybook_end -->
+	</div>
 </body>
 
 </html>

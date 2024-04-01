@@ -7,24 +7,31 @@ export const event = async (command, before) => {
     let respArr = [];
     let event_only = 0;
     let fx;
+    let end_game;
     const eventsCheck = events.filter((e) => {
-        let testPass = true;
+        let causePass = false;
         //ONLY CHECK ACTIVE EVENTS
         if (e.active === 1) {
             if ((before === 1 && e.before !== 1) || ((!before || before === 0) && e.before === 1)) {
                 return false;
             }
 
-            if (e.cause) {
-                const cause = e.cause;
-
-                if (e.action && !e.action.includes(action?.action)) {
-                    return false;
-                } else {
+            if (e.cause && e.cause.length > 0) {
+                for (let w = 0; w < e.cause.length; w++) {
+                    let testPass = true;
+                    const cause = e.cause[w];
                     //LOOP THROUGH ALL CAUSE OBJECT REQUIREMENTS
                     for (let x = 0, evtReqs = Object.keys(cause); x < evtReqs.length; x++) {
                         //IF PLAYER REQUIREMENT
-                        if (evtReqs[x] === "player") {
+                        if (evtReqs[x] === "action") {
+                            if (!cause[evtReqs[x]].includes(action?.action)) {
+                                testPass = false;
+                            }
+                        } else if (evtReqs[x] === "preposition") {
+                            if (cause[evtReqs[x]] !== action?.preposition[0]) {
+                                testPass = false;
+                            }
+                        } else if (evtReqs[x] === "player") {
                             const causeObj = cause[evtReqs[x]];
                             for (let y = 0, conditions = Object.keys(causeObj); y < conditions.length; y++) {
                                 if (conditions[y] && player[conditions[y]] !== causeObj[conditions[y]]) {
@@ -92,9 +99,12 @@ export const event = async (command, before) => {
                             }
                         }
                     }
+                    if (testPass) {
+                        causePass = true;
+                    }
                 }
             }
-            if (!testPass) {
+            if (!causePass) {
                 return false;
             } else {
                 return true;
@@ -116,7 +126,7 @@ export const event = async (command, before) => {
                 effect = sameAsEvt.effect;
             }
             for (let x = 0, keys = Object.keys(effect); x < keys.length; x++) {
-                if (keys[x] !== "response" && keys[x] !== "score" && keys[x] !== "fx") {
+                if (keys[x] !== "response" && keys[x] !== "score" && keys[x] !== "fx" && keys[x] !== "end_game") {
                     if (effect[keys[x]] && effect[keys[x]].length > 0) {
                         const resultObject = (keys[x] === "items") ? items : (keys[x] === "characters") ? characters : (keys[x] === "doors") ? doors : (keys[x] === "scenes") ? scenes : (keys[x] === "events") ? events : "";
                         if (resultObject) {
@@ -177,7 +187,7 @@ export const event = async (command, before) => {
             if (eventsCheck[i].event_only === 1) {
                 event_only = 1;
             }
-            if (effect?.score > 0) {
+            if (effect?.score) {
                 player.score = player.score + effect.score;
                 const evtUpdate = await IDB.setValue('player', player.score, 'score').catch(() => { return { error: "EVENT_SCORE_IDB_ERROR" } });
                 if (evtUpdate?.error) {
@@ -194,11 +204,15 @@ export const event = async (command, before) => {
                     return eventUpdate;
                 }
             }
+            if (effect?.end_game === 1) {
+                end_game = 1;
+            }
         }
     }
     return {
         response: respArr,
         event_only: event_only,
-        fx: fx
+        fx: fx,
+        end_game
     }
 }

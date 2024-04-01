@@ -1,6 +1,4 @@
 {
-    "comment": "LIST OF ALL ACTIONS AVAILABLE IN THE GAME.",
-    "comment2": "ALIAS IS A LIST OF ALL WORDS THAT PERFORM THE SAME ACTION AS AN ACTION WORD I.E. N = NORTH.",
     "actions": [
         {
             "action": "LISTINVENTORY",
@@ -15,7 +13,30 @@
             "type": "SETPLAYER",
             "dev_action": 1
         },
-
+        {
+            "action": "DELETE",
+            "class": "SYSTEM",
+            "type": "DELETEDATABASE",
+            "player_input": 1,
+            "skip_events": 1,
+            "help": "THIS WILL DELETE YOUR CURRENT GAME AND REMOVE ANY INFORMATION RELATED TO IT FROM YOUR BROWSER. THIS IS NOT REVERSIBLE!",
+            "ignore_object": 1
+        },
+        {
+            "action": "HELP",
+            "class": "SYSTEM",
+            "type": "HELP",
+            "skip_events": 1,
+            "ignore_object": 1
+        },
+        {
+            "action": "OPTIONS",
+            "class": "SYSTEM",
+            "type": "OPTIONS",
+            "alias": ["OPTION"],
+            "skip_events": 1,
+            "ignore_object": 1
+        },
         {
             "action": "CLOSE",
             "class": "DOOR",
@@ -46,7 +67,8 @@
             "action": "I",
             "class": "SYSTEM",
             "type": "INVENTORY",
-            "alias": ["INVENTORY", "INV"]
+            "alias": ["INVENTORY", "INV"],
+            "fallback": "INVENTORY"
         },
         {
             "action": "CLOSE",
@@ -114,82 +136,91 @@
         {
             "action": "TURN",
             "class": "ITEM",
-            "type": "ACTIVATEITEM",
+            "type": "OPERATEITEM",
             "preposition_required": 1,
-            "prepositions_allowed": ["ON", "OFF"]
+            "prepositions_allowed": ["ON", "OFF"],
+            "alias": ["SWITCH"]
         },
         {
             "action": "ACTIVATE",
             "class": "ITEM",
-            "type": "ACTIVATEITEM",
-            "alias": ["DEACTIVATE"]
+            "type": "OPERATEITEM",
+            "alias": ["DEACTIVATE", "OPERATE"]
         },
         {
-            "action": "SWITCH",
+            "action": "SHOW",
             "class": "ITEM",
-            "type": "ITEMTURN",
-            "preposition_required": 1,
-            "prepositions_allowed": ["ON", "OFF"]
+            "type": "SHOWITEM"
         },
         {
             "action": "N",
             "class": "MOVEMENT",
             "type": "MOVEPLAYER",
-            "alias": ["NORTH"]
+            "alias": ["NORTH"],
+            "is_direction": 1
         },
         {
             "action": "S",
             "class": "MOVEMENT",
             "type": "MOVEPLAYER",
-            "alias": ["SOUTH"]
+            "alias": ["SOUTH"],
+            "is_direction": 1
         },
         {
             "action": "E",
             "class": "MOVEMENT",
             "type": "MOVEPLAYER",
-            "alias": ["EAST"]
+            "alias": ["EAST"],
+            "is_direction": 1
         },
         {
             "action": "W",
             "class": "MOVEMENT",
             "type": "MOVEPLAYER",
-            "alias": ["WEST"]
+            "alias": ["WEST"],
+            "is_direction": 1
         },
         {
             "action": "NE",
             "class": "MOVEMENT",
             "type": "MOVEPLAYER",
-            "alias": ["NORTHEAST"]
+            "alias": ["NORTHEAST"],
+            "is_direction": 1
         },
         {
             "action": "NW",
             "class": "MOVEMENT",
             "type": "MOVEPLAYER",
-            "alias": ["NORTHWEST"]
+            "alias": ["NORTHWEST"],
+            "is_direction": 1
         },
         {
             "action": "SE",
             "class": "MOVEMENT",
             "type": "MOVEPLAYER",
-            "alias": ["SOUTHEAST"]
+            "alias": ["SOUTHEAST"],
+            "is_direction": 1
         },
         {
             "action": "SW",
             "class": "MOVEMENT",
             "type": "MOVEPLAYER",
-            "alias": ["SOUTHWEST"]
+            "alias": ["SOUTHWEST"],
+            "is_direction": 1
         },
         {
             "action": "U",
             "class": "MOVEMENT",
             "type": "MOVEPLAYER",
-            "alias": ["UP"]
+            "alias": ["UP"],
+            "is_direction": 1
         },
         {
             "action": "D",
             "class": "MOVEMENT",
             "type": "MOVEPLAYER",
-            "alias": ["DOWN"]
+            "alias": ["DOWN"],
+            "is_direction": 1
         },
         {
             "action": "GO",
@@ -240,6 +271,18 @@
             "preposition_object_required": 1
         },
         {
+            "action": "SMELL",
+            "class": "SYSTEM",
+            "type": "EXAMINE",
+            "alias": ["SNIFF"]
+        },
+        {
+            "action": "TOUCH",
+            "class": "SYSTEM",
+            "type": "EXAMINE",
+            "alias": ["FEEL"]
+        },
+        {
             "action": "WHISTLE",
             "fallback": "YOU WHISTLE."
         },
@@ -263,17 +306,6 @@
         {
             "action": "HATE",
             "fallback": "%%%💔"
-        },
-        {
-            "action": "RING",
-            "alias": ["PUSH", "TOUCH"]
-        },
-        {
-            "action": "PAY"
-        },
-        {
-            "action": "BUY",
-            "alias": ["PURCHASE"]
         }
     ]
 }

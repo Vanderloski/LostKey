@@ -1,16 +1,41 @@
 {
     "events": [
         {
-            "name": "PLACE_BETTY_INITIAL",
-            "action": ["KNOCK"],
+            "name": "RING_DOORBELL",
             "active": 1,
             "event_only": 1,
             "before": 1,
-            "cause": {
-                "object": {
-                    "name": "BHFD"
+            "cause": [ 
+                {
+                    "action": [
+                        "RING",
+                        "USE",
+                        "PUSH"
+                    ],
+                    "object": {
+                        "name": "DOORBELL"
+                    }
                 }
-            },
+            ],
+            "effect": {
+                "response": "YEOWCH! THE DOORBELL SHOCKS YOUR FINGER. IT SEEMS TO BE BROKEN."
+            }
+        },
+        {
+            "name": "PLACE_BETTY_INITIAL",
+            "active": 1,
+            "event_only": 1,
+            "before": 1,
+            "cause": [ 
+                {
+                    "action": [
+                        "KNOCK"
+                    ],
+                    "object": {
+                        "name": "BHFD"
+                    }
+                }
+            ],
             "effect": {
                 "response": "A YOUNG WOMAN OPENS THE FRONT DOOR AND STEPS ON THE PORCH TO GREET YOU.",
                 "characters": [
@@ -45,52 +70,60 @@
         },
         {
             "name": "STOP_ROSE",
-            "action": ["GET"],
             "active": 1,
             "repeatable": 1,
             "event_only": 1,
             "before": 1,
-            "cause": {
-                "object": {
-                    "name": "ROSE"
-                },
-                "items": [
-                    {
-                        "name": "ROSE",
-                        "owner": "ROSE BUSHES"
-                    }
-                ],
-                "characters": [
-                    {
-                        "name": "BETTY",
-                        "scene": "PLAYER"
-                    }
-                ]
-            },
+            "cause": [
+                {
+                    "action": [
+                        "GET"
+                    ],
+                    "object": {
+                        "name": "ROSE"
+                    },
+                    "items": [
+                        {
+                            "name": "ROSE",
+                            "owner": "ROSE BUSHES"
+                        }
+                    ],
+                    "characters": [
+                        {
+                            "name": "BETTY",
+                            "scene": "PLAYER"
+                        }
+                    ]
+                }
+            ],
             "effect": {
                 "response": "BETTY STOPS YOU BEFORE YOU CAN REACH THE FLOWER, \"OH, DON'T TOUCH THE ROSE BUSH, MY FATHER WOULD BE VERY UPSET.\""
             }
         },
         {
             "name": "SCORE_ROSE",
-            "action": ["GIVE"],
             "active": 1,
             "before": 1,
             "event_only": 1,
-            "cause": {
-                "object": {
-                    "name": "ROSE"
-                },
-                "indirect_object": {
-                    "name": "BETTY"
-                },
-                "items": [
-                    {
-                        "name": "ROSE",
-                        "owner_neq": "ROSE BUSHES"
-                    }
-                ]
-            },
+            "cause": [
+                {
+                    "action": [
+                        "GIVE"
+                    ],
+                    "object": {
+                        "name": "ROSE"
+                    },
+                    "indirect_object": {
+                        "name": "BETTY"
+                    },
+                    "items": [
+                        {
+                            "name": "ROSE",
+                            "owner_neq": "ROSE BUSHES"
+                        }
+                    ]
+                }
+            ],
             "effect": {
                 "response": "\"OH, SUCH A PRETTY FLOWER, THANK YOU!\", BETTY GIVES YOU A KISS ON THE CHEEK.",
                 "score": 100,
@@ -113,18 +146,24 @@
             "name": "DRIVE_IN_FX",
             "active": 1,
             "repeatable": 1,
-            "cause": {
-                "player": {
-                    "scene": "DITL"
+            "cause": [
+                {
+                    "player": {
+                        "scene": "DITL"
+                    }
                 }
-            },
+            ],
             "effect": {
                 "fx": "DRIVEINTHEATER",
                 "characters": [
                     {
                         "name": "BETTY",
-                        "help": ["\"WE CAN'T WATCH A MOVIE WITHOUT SOME POPCORN!\""],
-                        "responses": ["\"WE CAN'T WATCH A MOVIE WITHOUT SOME POPCORN!\""]
+                        "help": [
+                            "\"WE CAN'T WATCH A MOVIE WITHOUT SOME POPCORN!\""
+                        ],
+                        "responses": [
+                            "\"WE CAN'T WATCH A MOVIE WITHOUT SOME POPCORN!\""
+                        ]
                     }
                 ],
                 "events": [
@@ -137,17 +176,19 @@
         },
         {
             "name": "DRIVE_IN_FX_STOP",
-            "cause": {
-                "player": {
-                    "owner": "THUNDERBIRD"
-                },
-                "items": [
-                    {
-                        "name": "POPCORN",
-                        "scene": "PLAYER"
-                    }
-                ]
-            },
+            "cause": [
+                {
+                    "player": {
+                        "owner": "THUNDERBIRD"
+                    },
+                    "items": [
+                        {
+                            "name": "POPCORN",
+                            "scene": "PLAYER"
+                        }
+                    ]
+                }
+            ],
             "effect": {
                 "fx": "DRIVEINTHEATER_STOP",
                 "events": [
@@ -182,18 +223,71 @@
         },
         {
             "name": "PAY_JIM",
-            "action": ["GIVE"],
             "active": 1,
             "before": 1,
             "event_only": 1,
-            "cause": {
-                "object": {
-                    "name": "MONEY"
+            "cause": [
+                {
+                    "action": [
+                        "PAY"
+                    ],
+                    "preposition": "FOR",
+                    "object": {
+                        "name": "POPCORN"
+                    },
+                    "items": [
+                        {
+                            "name": "MONEY",
+                            "encountered": 1,
+                            "scene": "PLAYER"
+                        }
+                    ]
                 },
-                "indirect_object": {
-                    "name": "JIM"
+                {
+                    "action": ["PURCHASE", "BUY"],
+                    "object": {
+                        "name": "POPCORN"
+                    },
+                    "items": [
+                        {
+                            "name": "MONEY",
+                            "encountered": 1,
+                            "scene": "PLAYER"
+                        }
+                    ]
+                },
+                {
+                    "action": ["PAY"],
+                    "object": {
+                        "name": "JIM"
+                    },
+                    "items": [
+                        {
+                            "name": "MONEY",
+                            "encountered": 1,
+                            "scene": "PLAYER"
+                        }
+                    ]
+                },
+                {
+                    "action": [
+                        "GIVE"
+                    ],
+                    "object": {
+                        "name": "MONEY"
+                    },
+                    "indirect_object": {
+                        "name": "JIM"
+                    },
+                    "items": [
+                        {
+                            "name": "MONEY",
+                            "encountered": 1,
+                            "scene": "PLAYER"
+                        }
+                    ]
                 }
-            },
+            ],
             "effect": {
                 "response": "\"ONE BAG OF FRESHLY POPPED CORN, COMING UP.\" JIM SCOOPS A LARGE PILE OF POPCORN AND THROWS IT INTO A PAPER BAG AND DRIZZLES IT IN HOT BUTTER. HE TAKES YOUR MONEY AND HANDS THE BAG OVER TO BETTY. \"ENJOY THE MOVIE, IT'S ABOUT TO START.\" JIM SLIPS OUT FROM THE CONCESSION STAND AND HEADS INTO THE PROJECTION BOOTH ROOM.",
                 "score": 100,
@@ -212,18 +306,6 @@
                 ],
                 "effects": [
                     {
-                        "name": "PAY_JIM",
-                        "active": 0
-                    },
-                    {
-                        "name": "PAY_JIM_2",
-                        "active": 0
-                    },
-                    {
-                        "name": "PAY_JIM_3",
-                        "active": 0
-                    },
-                    {
                         "name": "DRIVE_FX_STOP",
                         "active": 1
                     }
@@ -231,82 +313,104 @@
             }
         },
         {
-            "name": "PAY_JIM_2",
-            "action": ["PAY"],
-            "active": 1,
-            "before": 1,
-            "event_only": 1,
-            "repeatable": 1,
-            "cause": {
-                "object": {
-                    "name": "JIM"
-                },
-                "items": [
-                    {
-                        "name": "MONEY",
-                        "encountered": 1,
-                        "scene": "PLAYER"
-                    }
-                ]
-            },
-            "effect": {
-                "same_as": "PAY_JIM"
-            }
-        },
-        {
-            "name": "PAY_JIM_3",
-            "action": ["PURCHASE", "BUY"],
-            "active": 1,
-            "before": 1,
-            "event_only": 1,
-            "cause": {
-                "object": {
-                    "name": "POPCORN"
-                },
-                "items": [
-                    {
-                        "name": "MONEY",
-                        "encountered": 1,
-                        "scene": "PLAYER"
-                    }
-                ]
-            },
-            "effect": {
-                "same_as": "PAY_JIM"
-            }
-        },
-        {
             "name": "STOP_FLASHLIGHT",
             "active": 1,
             "repeatable": 1,
-            "action": ["TURN","ACTIVATE","SWITCH"],
             "before": 1,
             "event_only": 1,
-            "cause": {
-                "object": {
-                    "name": "FLASHLIGHT"
+            "cause": [
+                {
+                    "action": [
+                        "TURN",
+                        "ACTIVATE",
+                        "SWITCH"
+                    ],
+                    "object": {
+                        "name": "FLASHLIGHT"
+                    }
                 }
-            },
+            ],
             "effect": {
                 "response": "YOU'LL NEED TO FIND NEW BATTERIES BEFORE IT WILL WORK."
             }
         },
         {
-            "name": "ACTIVATE_FLASHLIGHT",
+            "name": "GRAB_CHIPMUNK",
             "active": 1,
-            "action": ["PUT"],
             "before": 1,
             "event_only": 1,
-            "cause": {
-                "object": {
-                    "name": "BATTERIES"
-                },
-                "indirect_object": {
-                    "name": "FLASHLIGHT"
+            "cause": [
+                {
+                    "action": [
+                        "PICK",
+                        "GET"
+                    ],
+                    "object": {
+                        "name": "BROWN CHIPMUNK"
+                    }
                 }
-            },
+            ],
             "effect": {
-                "response": "YOU PLACE THE BATTERIES INTO THE |||FLASHLIGHT AND FLIP THE SWITCH. A BRIGHT YELLOW BEAM OF FLUORESCENT LIGHT MAKES A CIRCLE ON THE GROUND IN FRONT OF YOU. YOU NOW HAVE A WORKING FLASHLIGHT. YOU SWITCH IT OFF AND PLACE IT IN YOUR POCKET.",
+                "response": "THE CHIPMUNK NOTICES YOU APPROACH HIM. HE JUMPS FROM THE PICNIC TABLE AND RUNS UP A TREE INTO A HOLE AT THE TOP JUST OUT OF YOUR REACH.",
+                "characters": [
+                    {
+                        "name": "BROWN CHIPMUNK",
+                        "scene": ""
+                    }
+                ]
+            }
+        },
+        {
+            "name": "FEED_CHIPMUNK",
+            "active": 1,
+            "cause": [
+                {
+                    "items": [
+                        {
+                            "name": "POPCORN",
+                            "scene": "BPB"
+                        }
+                    ]
+                }
+            ],
+            "effect": {
+                "response": "YOU PLACE THE POPCORN ON THE PICNIC TABLE AND BACK AWAY. THE CHIPMUNK DARTS TOWARDS THE BAG AND BEGINS TO STUFF HIS FACE WITH THE FOOD. HE DARTS UP THE TREE TO HIS LITTLE HOLE AND A FEW SECONDS LATER TWO C BATTERIES FALL FROM THE HOLE.",
+                "items": [
+                    {
+                        "name": "POPCORN",
+                        "scene": ""
+                    },
+                    {
+                        "name": "BATTERIES",
+                        "scene": "BPB"
+                    }
+                ],
+                "characters": [
+                    {
+                        "name": "BROWN CHIPMUNK",
+                        "scene": ""
+                    }
+                ]
+            }
+        },
+        {
+            "name": "ACTIVATE_FLASHLIGHT",
+            "active": 1,
+            "before": 1,
+            "event_only": 1,
+            "cause": [
+                {
+                    "action": ["PUT"],
+                    "object": {
+                        "name": "BATTERIES"
+                    },
+                    "indirect_object": {
+                        "name": "FLASHLIGHT"
+                    }
+                }
+            ],
+            "effect": {
+                "response": "YOU PLACE THE |||BATTERIES INTO THE |||FLASHLIGHT AND FLIP THE SWITCH. A BRIGHT YELLOW BEAM OF FLUORESCENT LIGHT MAKES A CIRCLE ON THE GROUND IN FRONT OF YOU. YOU NOW HAVE A WORKING FLASHLIGHT. YOU SWITCH IT OFF AND PLACE IT IN YOUR POCKET.",
                 "items": [
                     {
                         "name": "BATTERIES",
@@ -320,6 +424,22 @@
                         "active": 0
                     }
                 ]
+            }
+        },
+        {
+            "name": "END_GAME",
+            "active": 0,
+            "repeatable": 1,
+            "cause": [
+                {
+                    "player": {
+                        "scene": "BHST"
+                    }
+                }
+            ],
+            "effect": {
+                "response": "YOU FIRE THE LASER PISTOL AND WATCH AS THE RED LIGHT JUMPS FROM YOUR HANDS AND THROUGH THE ALIENS GREEN CHEST. HE LETS OUT A CRY AND FALLS TO HIS KNEES BEFORE HIT HIS FACE ON THE FLOOR. YOU BLOW THE TOP OF THE PISTOL AND TWIRL IT BACK INTO YOUR HOLSTER. IT'S FINALLY OVER, THE INVASION HAS BEEN THWARTED. EVERYONE CHEERS.",
+                "end_game": 1
             }
         }
     ]

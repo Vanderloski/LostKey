@@ -1,11 +1,17 @@
 {
     "indexeddb_name": "IOS",
     "title": "INVASION OF THE OUTER SPACEMEN",
-    "author": "BY JOSEPH VANDERLOSKI",
+    "author": "JOSEPH VANDERLOSKI",
     "tagline": "THEY'RE MEAN, THEY'RE GREEN, THEY'RE HERE!",
     "starting_scene": "BHFP",
     "show_inventory": 1,
+    "show_image": 1,
+    "show_decoration": 1,
     "score": 1,
     "moves": 1,
-    "test_mode": 1
+    "test_mode": 1,
+    "help": "THROUGH OUT YOUR ADVENTURE IN INVASION OF THE OUTER SPACEMEN YOU WILL BE ACCOMPANIED BY YOUR GIRLFRIEND BETTY. YOU CAN TALK TO BETTY AT ANYTIME AND SHE WILL RESPOND IN KIND. IF YOU HAPPEN TO GET STUCK AT ANY POINT, ASK HER FOR HELP, SHE'LL HAVE A HINT ON WHAT YOU CURRENTLY NEED TO DO.",
+    "credits_title": "THE END",
+    "credits": ["DEVELOPER: JOSEPH VANDERLOSKI", "WRITER: JOSEPH VANDERLOSKI", "PLAYER: YOU", "BETTY: AS HERSELF", "ALIEN 1 - 4: MAN IN SUIT", "THANKS FOR PLAYING!"],
+    "score_total": 3800
 }

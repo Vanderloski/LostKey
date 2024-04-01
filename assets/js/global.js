@@ -13,7 +13,8 @@ let IDB,
     scenes,
     characters,
     events,
-    lastEngineResp;
+    lastEngineResp,
+    player_input;
 
 const prepositions = [
     "ABOUT",
@@ -48,7 +49,6 @@ const articles = [
     "AN"
 ]
 
-
 //GET OPTIONS CREATE INDEXDB MODULE AND START MAIN JS
 $.getJSON("./assets/json/options.json", (opt) => {
     options = opt;
@@ -64,6 +64,51 @@ $.getJSON("./assets/json/options.json", (opt) => {
     alert(engineError);
     return reject();
 });
+
+/*
+LOAD OPTIONS WITHOUT JQUERY
+async function getFetch(url) {
+    return await fetch(url)
+        .then(async (optStatus) => {
+            if (optStatus.status >= 400 && optStatus.status < 600) {
+                alert(engineError);
+                return;
+            }
+            return optStatus;
+        })
+        .then(async (opt) => {
+            if (opt.ok) {
+                options = await opt.json();
+                options.indexeddb_name === options.indexeddb_name.toUpperCase();
+
+                import('./modules/indexeddb.js')
+                    .then(module => {
+                        IDB = module;
+                        indexDBCheck();
+                        return;
+                    })
+                    .catch(() => { 
+                        alert(engineError) 
+                        return;
+                    });
+                    return
+            } else {
+                alert(engineError);
+                return;
+            }
+        })
+        .catch(() => {
+            alert(engineError);
+            return;
+        })
+}
+
+async function getOptions() {
+    getFetch("./assets/json/options.json")
+}
+
+//GET OPTIONS AND START GAME
+getOptions();*/
 
 //SHOW ERROR AND DISABLE PLAY
 function showError(error) {
@@ -92,7 +137,7 @@ function removeThe(string) {
 function addThe(name) {
     const wordDec = (name.character) ? ' ###' : (name.door) ? ' ***' : ' |||';
     const nameArr = ((name.title) ? name.title : name.name).split(" ");
-    return ((nameArr[0] === "THE") ? "" : "THE") + wordDec + name.name.replaceAll(" ", "_");
+    return ((name.character) ? "" : ((nameArr[0] === "THE") ? "" : "THE")) + wordDec + name.name.replaceAll(" ", "_");
 }
 
 //MAKE MATH.RANDOM A BIT MORE RANDOM
@@ -108,7 +153,7 @@ function rng(min, max) {
 
 //HIDE-SHOW INVENTORY
 function inventoryToggle() {
-    if (player.inventory === 0 || options.show_inventory === 0) {
+    if (player.inventory === 0 || options.show_inventory === 0 || player.show_inventory === 0) {
         $('#sidebar').animate({
             width: '0%'
         }, () => {
@@ -176,7 +221,8 @@ function getOwner(subordinate) {
                 if (itemOwner) {
                     subordinate.ownerType = "ITEM";
                 }
-                const subUpdate = IDB.setValue('items', subordinate).catch(() => { return { error: "GLOBAL_GETOWNER_IDB_UPDATE" } });
+                const table = (subordinate.door) ? "doors" : ((subordinate.character) ? "characters" : "items")
+                const subUpdate = IDB.setValue(table, subordinate).catch(() => { return { error: "GLOBAL_GETOWNER_IDB_UPDATE" } });
                 if (subUpdate?.error) {
                     return subUpdate;
                 } else {
@@ -190,18 +236,22 @@ function getOwner(subordinate) {
 //CHECK FOR CURRENT SCENE HERE AND IF NEW SCENE IS PASSED USE THAT FOR ADDITIONAL CHECKS
 function sceneLight(sceneVis) {
     //CHECK NEW SCENE VISIBILITY
-	const light = items.filter((it) => {
-		return it.light_source === 1 && it.on === 1;
-	})[0];
+    const light = items.filter((it) => {
+        return it.light_source === 1 && it.on === 1;
+    })[0];
     const owner = getOwner(light);
     if (sceneVis?.visibility === "DARK") {
         if (!light) {
             return false;
         } else {
-            if (owner && owner?.scene !== player.scene) {
-                return false;
-            } else if (light.scene !== player.scene) {
-                return false;
+            if (light.owner !== "PLAYER") {
+                if (owner && owner?.scene !== player.scene) {
+                    return false;
+                } else if (light.scene !== player.scene) {
+                    return false;
+                } else {
+                    return true;
+                }
             } else {
                 return true;
             }
@@ -209,4 +259,63 @@ function sceneLight(sceneVis) {
     } else {
         return true;
     }
+}
+
+
+function romanticize(year) {
+    const values =
+        [1000, 900, 500, 400, 100,
+            90, 50, 40, 10, 9, 5, 4, 1];
+    const symbols =
+        ['M', 'CM', 'D', 'CD', 'C',
+            'XC', 'L', 'XL', 'X', 'IX',
+            'V', 'IV', 'I'];
+    let result = '';
+
+    for (let i = 0; i < values.length; i++) {
+        while (year >= values[i]) {
+            result += symbols[i];
+            year -= values[i];
+        }
+    }
+
+    return result;
+}
+
+//NORMALIZE JSON DATA
+async function normalize(file) {
+    for (let e = 0, events = Object.keys(file); e < events.length; e++) {
+        //IF NUMBER
+        if (file[events[e]] && !isNaN(file[events[e]])) {
+            file[events[e]] = parseInt(file[events[e]], 10);
+        }
+
+        //IF STRING
+        if (typeof file[events[e]] === "string") {
+            file[events[e]] = file[events[e]].toUpperCase();
+        }
+
+        //IF OBJECT
+        if (typeof file[events[e]] === "object") {
+            const isArr = Array.isArray(file[events[e]]);
+            if (isArr) {
+                if (file[events[e]].length > 0) {
+                    for (let ii = 0; ii < file[events[e]].length; ii++) {
+                        if (typeof file[events[e]][ii] === "string") {
+                            file[events[e]][ii] = file[events[e]][ii].toUpperCase();
+                        } else {
+                            file[events[e]][ii] = await normalize(file[events[e]][ii]);
+                        };
+                    }
+                };
+            } else {
+                file[events[e]] = await normalize(file[events[e]]);
+            }
+        }
+
+        if (events[e] !== events[e].toLowerCase()) {
+            delete Object.assign(file, { [events[e].toLowerCase()]: file[events[e]] })[events[e]];
+        }
+    }
+    return file;
 }

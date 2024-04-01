@@ -11,8 +11,10 @@ export const item = async (command) => {
 			return await giveItem(command);
 		} else if (command.action?.type === "OPENCLOSEITEM") {
 			return await openCloseItem(command);
-		} else if (command.action?.type === "ACTIVATEITEM") {
-			return await activateItem(command);
+		} else if (command.action?.type === "OPERATEITEM") {
+			return await operateItem(command);
+		} else if (command.action?.type === "SHOWITEM") {
+			return await showItem(command);
 		} else {
 			return false;
 		}
@@ -54,13 +56,21 @@ async function getDropItem(command) {
 		};
 	}
 
+	//IF NOT AN ITEM
+	if (!object.item) {
+		return {
+			response: ["THAT ISN'T POSSIBLE."],
+			noMovement: 1
+		}
+	}
+
 	//CHECK CURRENT SCENE VISIBILITY
 	const curScene = scenes.filter((s) => {
 		return s.name === player.scene;
 	})[0];
 	//CHECK SCENE LIGHT
 	const isLight = sceneLight(curScene);
-	if (!isLight) {
+	if (!isLight && !object.light_source) {
 		return {
 			response: ["IT'S TOO DARK TO DO THAT."],
 			noMovement: 1
@@ -69,6 +79,14 @@ async function getDropItem(command) {
 
 	//GET OWNER IF EXISTS
 	const owner = getOwner(object);
+
+	//IF UNDROPPABLE ITEM HELD BY PLAYER
+	if (object.undroppable === 1 && action.type === "DROPITEM" && (object.owner === "PLAYER" || owner?.name === "PLAYER")) {
+		return {
+			response: [object.undroppable_msg || "YOU CAN'T LEAVE THAT BEHIND."],
+			noMovement: 1
+		}
+	}
 	if (action.type === "GETITEM" && object.owner === "PLAYER") { //CHECK IF GETTING ENCOUNTERED ITEM ALREADY IN INVENTORY
 		return {
 			response: ["YOU'RE ALREADY CARRYING THAT."],
@@ -216,6 +234,13 @@ async function giveItemCharacter(command) {
 		}
 	}
 
+	if (!object.item) {
+		return {
+			response: ["THAT ISN'T POSSIBLE."],
+			noMovement: 1
+		}
+	}
+
 	if (object.owner !== "PLAYER") {
 		return {
 			response: ["YOU'RE NOT CURRENTLY CARRYING THAT."],
@@ -242,6 +267,11 @@ async function giveItemCharacter(command) {
 					response: ["I DON'T KNOW WHO THAT IS."],
 					noMovement: 1
 				}
+			}
+		} else if (object.undroppable === 1 && object.owner === "PLAYER") {
+			return {
+				response: [object.undroppable_msg || "YOU CAN'T LEAVE THAT BEHIND."],
+				noMovement: 1
 			}
 		} else {
 			const itemToMove = items.filter((it) => {
@@ -298,6 +328,13 @@ async function giveItem(command) {
 		}
 	}
 
+	if (!object.item) {
+		return {
+			response: ["THAT ISN'T POSSIBLE."],
+			noMovement: 1
+		}
+	}
+
 	const owner = getOwner(object);
 	const inOwner = getOwner(indirect);
 
@@ -334,7 +371,7 @@ async function giveItem(command) {
 		if (indirect.open !== 1 && indirect.container !== "E") {
 			curOwner.open = 1;
 			respArr.push("///YOU_OPEN_" + addThe(curOwner) + ".");
-			const itemOwnerUpdate = IDB.setValue('items', curOwner).catch(() => { return { error: "GIVEITEM_OWNER_UPDATE_ERROR"}; }); 
+			const itemOwnerUpdate = IDB.setValue('items', curOwner).catch(() => { return { error: "GIVEITEM_OWNER_UPDATE_ERROR" }; });
 			if (itemOwnerUpdate?.error) {
 				return itemOwnerUpdate;
 			}
@@ -406,7 +443,7 @@ async function openCloseItem(command) {
 	}
 }
 
-async function activateItem(command) {
+async function operateItem(command) {
 	const action = command?.action;
 	const object = command?.object;
 	const prep = command?.action?.preposition[0];
@@ -422,7 +459,7 @@ async function activateItem(command) {
 	const owner = getOwner(object);
 	//IF CURRENT SCENE OR PLAYER INVENTORY
 	if (object.scene === player.scene || owner?.name === "PLAYER" || (owner?.scene === player.scene && owner?.affinity === "F")) {
-		if (object?.activate !== 1) {
+		if (object?.operable !== 1) {
 			return {
 				response: ["THAT ISN'T POSSIBLE."],
 				noMovement: 1
@@ -441,8 +478,14 @@ async function activateItem(command) {
 			const curItem = items.filter((it) => {
 				return it.name === object.name;
 			})[0];
-			curItem.on = (action.originalAction === "ACTIVATE" || prep === "ON") ? 1 : 0;
-			const itemUpdate = await IDB.setValue('items', curItem).catch(() => { return { error: "ACTIVATEITEM_UPDATE_IDB_ERROR" }; });
+
+			if (action.originalAction === "OPERATE") {
+				curItem.on = (curItem.on === 1) ? 0 : 1;
+			} else {
+				curItem.on = (action.originalAction === "ACTIVATE" || prep === "ON") ? 1 : 0;
+			}
+
+			const itemUpdate = await IDB.setValue('items', curItem).catch(() => { return { error: "OPERATEITEM_UPDATE_IDB_ERROR" }; });
 			if (!itemUpdate?.error) {
 				return { response: ["YOU " + origAction + " " + addThe(object) + "."] }
 			} else {
@@ -454,5 +497,46 @@ async function activateItem(command) {
 			response: ["YOU CANNOT CURRENTLY SEE THAT."],
 			noMovement: 1
 		}
+	}
+}
+
+async function showItem(command) {
+	const action = command?.action;
+	const object = command?.object;
+	const indirect = command?.indirectObject;
+
+	if (!object) {
+		return {
+			response: ["WHAT WOULD YOU LIKE TO SHOW?"],
+			noMovement: 1
+		}
+	}
+
+	if (!indirect) {
+		const objectThe = addThe(object);
+		return {
+			response: ["WHO WOULD YOU LIKE TO SHOW " + objectThe + " TO?"],
+			noMovement: 1
+		}
+	}
+
+	if (!indirect.character) {
+		return {
+			response: ["THAT'S NOT POSSIBLE."],
+			noMovement: 1
+		}
+	}
+
+	let charResp = "THEY DON'T SEEM TO HAVE ANYTHING PARTICULAR TO SAY ABOUT THAT.";
+	if (object.converse && object.converse.length > 0) {
+		const objResp = object.converse.filter((r) => {
+			return r.character === indirect.name;
+		})[0]?.responses;
+		if (objResp && objResp.length > 0) {
+			charResp = objResp[rng(0, objResp.length - 1)];
+		}
+	}
+	return {
+		response: [charResp]
 	}
 }

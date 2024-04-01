@@ -43,10 +43,6 @@ async function converse(command) {
 			return {
 				response: [charResp]
 			};
-		} else if (indirectObject.encountered !== 1) {
-			return {
-				response: ["I DON'T KNOW WHAT THAT IS."]
-			}
 		} else {
 			let charResp = "THEY DON'T SEEM TO HAVE ANYTHING PARTICULAR TO SAY ABOUT THAT.";
 			if (indirectObject.converse && indirectObject.converse.length > 0) {

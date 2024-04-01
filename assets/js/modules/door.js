@@ -211,7 +211,7 @@ async function lockDoor(command) {
             let newDoor;
             if (key) {
                 if (door.open) {
-                    respArr.push("A KEY IS NOT REQUIRED TO " + action.originalAction + " WHEN THIS DOOR IS OPEN.");
+                    respArr.push("A KEY IS NOT REQUIRED TO " + action.originalAction + " THIS DOOR WHEN IT IS OPEN.");
                 } else {
                     respArr.push("A KEY IS NOT REQUIRED TO " + action.originalAction + " THIS DOOR.");
                 }

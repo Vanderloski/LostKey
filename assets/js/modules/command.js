@@ -60,9 +60,18 @@ export const command = async (command, devAction) => {
 	let evtRes;
 	let evtResAfter;
 	let cmdRes;
-	const commandObj = await parseCommand(command);
+	let commandObj;
 
-	//console.log(commandObj);
+	//SET COMMAND OBJ
+	if (player_input && command !== "LISTINVENTORY") {
+		commandObj = player_input;
+		commandObj.player_input_response = command;
+		commandObj.player_input_clear = 1;
+	} else {
+		commandObj = await parseCommand(command);
+	}
+
+	//console.log('cobj: ', commandObj);
 
 	//IF NOT A SKIP EVENT ACTION
 	if (commandObj?.action?.skip_events !== 1) {
@@ -72,7 +81,7 @@ export const command = async (command, devAction) => {
 	if (commandObj && evtRes?.event_only !== 1) {
 		if (commandObj.response) {
 			cmdRes = commandObj;
-		} else if (commandObj.object && ((commandObj.object.encountered !== 1 && (commandObj.object.character || commandObj.object.item)) || commandObj.object.invalid === 1)) {//IF A NON SCENE NON MOVEMENT OBJECT THAT IS NOT ENCOUNTERED
+		} else if (commandObj.object && commandObj.action.ignore_object !== 1 && ((commandObj.object.encountered !== 1 && (commandObj.object.character || commandObj.object.item)) || commandObj.object.invalid === 1)) {//IF A NON SCENE NON MOVEMENT OBJECT THAT IS NOT ENCOUNTERED
 			cmdRes = {
 				response: ["I DON'T KNOW WHAT THAT IS."],
 				noMovement: 1
@@ -133,6 +142,13 @@ export const command = async (command, devAction) => {
 			cmdRes = evtRes;
 		}
 	}
+	if (evtRes?.end_game) {
+		if (cmdRes) {
+			cmdRes.end_game = evtRes.end_game;
+		} else {
+			cmdRes = evtRes;
+		}
+	}
 
 	//ADD ENCOUNTERED TO RESPONSE
 	if (encountered?.response && encountered.response.length > 0) {
@@ -184,15 +200,38 @@ export const command = async (command, devAction) => {
 
 	let noResultRsp = "I DON'T UNDERSTAND.";
 	//IF VALID ACTION AND OBJECT
-	if (commandObj?.action && commandObj?.object && !commandObj?.object?.invalid) {
+	if (commandObj?.action && commandObj?.object && !commandObj?.object?.invalid && !commandObj?.action?.invalid) {
 		noResultRsp = "NOTHING HAPPENS.";
 	}
 
+	if (commandObj?.action && commandObj?.action?.fallback) {
+		noResultRsp = commandObj.action.fallback;
+	};
+
 	if (cmdRes && (!cmdRes?.response || cmdRes?.response.length === 0)) {
 		cmdRes.response = [noResultRsp];
+	} else {
+		if (commandObj?.action && commandObj?.action?.flavor && cmdRes.noMovement !== 1) {
+			cmdRes.response.unshift(commandObj.action.flavor);
+		}
 	}
 
 	cmdRes = (cmdRes) ? cmdRes : { response: [noResultRsp], noMovement: 1 };
+
+	//CHECK FOR PLAYER INPUT REQUEST OR CLEAR PLAYER INPUT REQUEST
+	if (commandObj?.action && commandObj.action.player_input === 1 && (cmdRes?.response && cmdRes?.player_input !== 0)) {
+		player_input = commandObj;
+	}
+
+	if (commandObj?.player_input_clear === 1) {
+		player_input = "";
+	}
+
+	//IF END GAME STOP ALL OTHER RESPONSES
+	if (evtResAfter?.end_game) {
+		cmdRes = evtResAfter;
+	}
+
 	return cmdRes;
 }
 
@@ -249,7 +288,7 @@ async function parseCommand(command) {
 
 	//console.log('commandArr: ', commandArr);
 	//console.log('prep: ', prepArr);
-	//console.log('obj: ', obj);
+	//console.log('obj: ', objArr);
 	//console.log('indirectPrep: ', indirectPrepArr);
 	//console.log('indirectobj: ', indirectObj);
 
@@ -392,10 +431,24 @@ async function parseCommand(command) {
 		indirectObject = filterIndirect;
 	}
 
+	//SPECIAL CHECK FOR LEAVE
+	if (commandArr[0] === "LEAVE" && object) {
+		if (object[0].name === player.owner) {
+			action = action.filter((a) => {
+				return a.action === "EXIT";
+			});
+		} else {
+			action = action.filter((a) => {
+				return a.action === "DROP";
+			});
+		}
+	}
+
 	if (action.length === 1 && (!object || object.length <= 1) && (!indirectObject || indirectObject.length <= 1)) {
 		action[0].originalAction = commandArr[0];
 		action[0].preposition = prepArr;
 		action[0].inPreposition = indirectPrepArr;
+
 		return {
 			action: action[0],
 			object: (object) ? object[0] : undefined,
@@ -420,7 +473,25 @@ async function parseCommand(command) {
 				setCommand: commandArr[0] + " " + ((prepArr && prepArr.length > 0) ? prepArr[0] + " " : ""),
 				no_event: 1
 			}
-		} else if (action && action.length > 1) {
+		} else if (indirectObject && indirectObject.length > 1) {
+			let resp = "DID YOU MEAN ";
+			for (let i = 0; i < indirectObject.length; i++) {
+				const objName = addThe(indirectObject[i]);
+				if (i === 0) {
+					resp += objName;
+				} else if (i === indirectObject.length - 1) {
+					resp += ", OR " + objName;
+				} else {
+					resp += ", " + objName;
+				}
+			}
+			resp += "?";
+			return {
+				response: [resp],
+				setCommand: commandArr[0] + " " + ((prepArr && prepArr.length > 0) ? prepArr[0] + " " : ""),
+				no_event: 1
+			}
+		} else if (action && action.length > 1 && object && object.length === 1) {
 			let resp = "DID YOU WANT TO ";
 			for (let i = 0; i < action.length; i++) {
 				const objName = addThe(object[0]);
@@ -438,7 +509,18 @@ async function parseCommand(command) {
 				no_event: 1
 			}
 		} else {
-			return false;
+			action = {
+				action: commandArr[0],
+				preposition: prepArr,
+				inPreposition: indirectPrepArr,
+				invalid: 1
+			}
+
+			return {
+				action: action,
+				object: (object) ? object[0] : undefined,
+				indirectObject: (indirectObject) ? indirectObject[0] : undefined
+			}
 		}
 	}
 }
@@ -795,20 +877,24 @@ async function getObject(obj, command) {
 
 	//DIRECTIONS
 	directionCheck = actions.filter((a) => {
-		const actionNothe = removeThe(a.action);
+		if (a.is_direction === 1) {
+			const actionNothe = removeThe(a.action);
 
-		if (actionNothe === obj) {
-			a.direction = 1;
-			a.name = a.action;
-			return true;
-		} else if (a?.alias) {
-			for (let i = 0; i < a.alias.length; i++) {
-				const aliasNoThe = removeThe(a.alias[i]);
-				if (aliasNoThe === obj) {
-					a.direction = 1;
-					a.name = a.action;
-					return true;
+			if (actionNothe === obj) {
+				a.direction = 1;
+				a.name = a.action;
+				return true;
+			} else if (a?.alias) {
+				for (let i = 0; i < a.alias.length; i++) {
+					const aliasNoThe = removeThe(a.alias[i]);
+					if (aliasNoThe === obj) {
+						a.direction = 1;
+						a.name = a.action;
+						return true;
+					}
 				}
+			} else {
+				return false;
 			}
 		} else {
 			return false;

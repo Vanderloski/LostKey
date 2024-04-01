@@ -22,6 +22,13 @@ async function setScene(command) {
 
 	//CHECK IF FIRST PLAY AND OPENING IS NEEDED
 	if (player?.first !== 1) {
+		//SET LICENSE INFO
+		respArr.push(((options?.title) ? "~~~" + options.title.replaceAll(" ", "_") : "") + ((options?.author) ? " ~~~A_PARTICIPATIVE_NARRATIVE_BY_" + options.author.replaceAll(" ", "_") + "_©" + romanticize(new Date().getFullYear()) : ""));
+		
+		//THIS IS REQUIRED TO CONFORM WITH THE LICENSE REQUIREMENTS OF THIS PROGRAM, DO NOT REMOVE!!!!
+		respArr.push("CPR C64 >>> >>> ~~~YOU_CAN_TYPE_HELP_AT_ANYTIME_FOR_HINTS_ON_HOW_TO_PLAY. >>> >>>");
+		//////////////////
+
 		const openScene = scenes.filter((s) => {
 			return s.name === "INTRODUCTION";
 		})[0];
@@ -198,7 +205,11 @@ async function movePlayer(command) {
 
 					//CHECK LIGHT OF NEW SCENE
 					const isLight = sceneLight(newSceneObj);
-					if (!isLight) {
+					//CHECK IF PLAYER IS HOLDING A LIGHT SOURCE
+					const equipLight = items.filter((it) => {
+						return it.owner === "PLAYER" && it.light_source === 1 && it.on === 1;
+					})[0];
+					if (!isLight || !equipLight) {
 						return {
 							response: ["IT'S TOO DARK TO GO THAT WAY."],
 							noMovement: 1
@@ -241,7 +252,7 @@ async function movePlayer(command) {
 							sceneTitle: printTitle
 						};
 					} else {
-						return { error: "MOVEPLAYER_UPDATE_ERROR" };
+						return updateCurScene;
 					}
 				}
 			} else {
@@ -262,6 +273,7 @@ async function enterExit(command) {
 	if (!object) {
 		return {
 			response: ["WHAT WOULD YOU LIKE TO " + action.originalAction + "?"],
+			setCommand: action.originalAction + " ",
 			noMovement: 1
 		};
 	}
