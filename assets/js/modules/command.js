@@ -1,9 +1,9 @@
 //CLASSES
-let MC, ITEM, DOOR, CHARACTER, SYSTEM, EVENT;
+let MOVEMENT, ITEM, DOOR, CHARACTER, SYSTEM, EVENT;
 
 await import('./movement.js')
 	.then(module => {
-		MC = module;
+		MOVEMENT = module;
 	})
 	.catch(() => showError('COMMAND_CLASS_MOVEMENT'));
 
@@ -93,7 +93,7 @@ export const command = async (command, devAction) => {
 			};
 		} else if (!(commandObj.action.dev_action === 1 && devAction !== 1)) {
 			if (commandObj.action.class === "MOVEMENT") {
-				cmdRes = await MC.movement(commandObj);
+				cmdRes = await MOVEMENT.movement(commandObj);
 			} else if (commandObj.action.class === "ITEM") {
 				cmdRes = await ITEM.item(commandObj);
 			} else if (commandObj.action.class === "DOOR") {

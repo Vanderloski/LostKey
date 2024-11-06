@@ -184,6 +184,7 @@ body {
 	margin: 0;
 	padding: 0;
 	height: 100%;
+	overflow: hidden;
 }
 
 #titleScreen {
@@ -247,7 +248,7 @@ body {
 	flex-direction: column;
 	height: 100%;
 	background: #000000;
-	border-radius: 20px
+	border-radius: 20px;
 }
 
 .wrapperHide {
@@ -298,7 +299,8 @@ body {
 	width: 90%;
 	max-width: 1792px;
 	margin: 0 auto;
-	height: 90%;
+	flex-grow: 1;
+	max-height: 88%;
 	display: flex;
 }
 

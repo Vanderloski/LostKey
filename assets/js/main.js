@@ -140,7 +140,6 @@ async function startGame() {
 										inventoryToggle();
 										writeToInventory();
 
-
 										if (cmdRes?.response) {
 											writeToScreen(cmdRes.response);
 										}

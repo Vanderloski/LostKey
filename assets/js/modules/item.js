@@ -408,12 +408,12 @@ async function openCloseItem(command) {
 				response: ["THAT ISN'T POSSIBLE."],
 				noMovement: 1
 			}
-		} else if (action.originalAction === "OPEN" && object.open === 1) { //IF OPEN BUT ALREADY OPENED
+		} else if (action.originalAction === "OPEN" && object.open === 1) { //IF OPENABLE BUT ALREADY OPENED
 			return {
 				response: [addThe(object) + " IS ALREADY OPENED."],
 				noMovement: 1
 			}
-		} else if ((action.originalAction === "CLOSE" || action.originalAction === "SHUT") && object.open !== 1) {//IF CLOSE BUT ALREADY CLOSED
+		} else if ((action.originalAction === "CLOSE" || action.originalAction === "SHUT") && object.open !== 1) {//IF CLOSEABLE BUT ALREADY CLOSED
 			return {
 				response: [addThe(object) + " IS ALREADY CLOSED."],
 				noMovement: 1

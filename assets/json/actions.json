@@ -306,6 +306,14 @@
         {
             "action": "HATE",
             "fallback": "%%%💔"
+        },
+        {
+            "action": "EAT",
+            "fallback": "YOU SHOULDN'T STICK RANDOM THINGS IN YOUR MOUTH."
+        },
+        {
+            "action": "FART",
+            "fallback": "YOU WOULD NEVER DO THAT IN THE PRESENCE OF A LADY."
         }
     ]
 }
